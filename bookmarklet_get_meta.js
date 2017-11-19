@@ -20,7 +20,7 @@ iDiv.style.border = '1px solid black';
 iDiv.innerHTML += '<br/><br/><div id="a_meta_top"><b>Meta Data</b> <i>(Click a box to copy to clipboard)</i></div><br/><hr/><b>json</b><br/><textarea style="height: 200px;" onclick="copy_clipboard(this)" id="json_meta"></textarea><br/>';
 
 
-if ( window.location.href.indexOf(".co.uk") == -1) {
+if ( window.location.href.indexOf(".co.uk") == -1 && window.location.href.indexOf(".com.au") == -1) {
 // US Version
 document.querySelector('.productPublisherSummary').parentElement.appendChild(iDiv);
 
