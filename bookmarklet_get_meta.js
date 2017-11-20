@@ -3,12 +3,32 @@ window['copy_clipboard'] = function copy_clipboard(obj) {
 	obj.select();
 	document.execCommand('copy');
 	obj.blur();
+	console.log(obj)
+
+	var iDiv3 = document.createElement('div');
+	iDiv3.className = 'copied_to_clipboard';
+	iDiv3.style.border = '1px solid red';
+	iDiv3.style.backgroundColor = 'red'
+	iDiv3.style.color = 'yellow'
+	iDiv3.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text copied to clipboard';
+	obj.parentNode.insertBefore(iDiv3, obj);
+	setTimeout(function(){ removeElementsByClass('copied_to_clipboard') }, 2000);
+
 }
+
+
 window['padding_right'] = function (s, c, n) {
   if (! s || ! c || s.length >= n) { return s; }
   var max = (n - s.length)/c.length;
   for (var i = 0; i < max; i++) { s += c; }
   return s;
+}
+
+window['removeElementsByClass'] = function (className){
+    var elements = document.getElementsByClassName(className);
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
 }
 
 document.querySelector('head').innerHTML += '<style>.audible_meta_data textarea { width: 100%; height: 50px; overflow-y: scroll; }</style>';
