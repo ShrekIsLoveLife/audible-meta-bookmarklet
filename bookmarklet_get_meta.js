@@ -99,6 +99,20 @@ iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + 
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
+try {
+	var out = 'Series:   [color=white]';
+	out2 = padding_right(' Date:',' ', 25);
+	meta_dict['series'] = (document.querySelector('.seriesLabel').innerText.replace("Series:","").trim())
+	out += meta_dict['series'];
+	out2 += meta_dict['series'];
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';	
+} catch (e) {
+	meta_dict['series'] = 'N/A';
+}
+
+
 
 
 
@@ -183,6 +197,21 @@ if (window.location.href.indexOf(".de") > -1) {
 
 
 
+try {
+	var out = 'Series:   [color=white]';
+	out2 = padding_right(' Series:',' ', 25);
+	var item_data = /Serie:(.*)/.exec(meta_data)[1]
+	out += item_data.trim();
+	out2 += item_data.trim();
+	meta_dict['series'] = item_data.trim();
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+} catch (e) {
+	meta_dict['series'] = 'N/A';
+}
+
+
 	var out = 'Publisher:   [color=white]';
 	out2 = padding_right(' Publisher:',' ', 25);
 	var item_data = /Anbieter:(.*)/.exec(meta_data)[1]
@@ -262,6 +291,21 @@ if (window.location.href.indexOf(".de") > -1) {
 	out += '[/color]';
 	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+
+
+try {
+	var out = 'Series:   [color=white]';
+	out2 = padding_right(' Series:',' ', 25);
+	var item_data = /Series:(.*)/.exec(meta_data)[1]
+	out += item_data.trim();
+	out2 += item_data.trim();
+	meta_dict['series'] = item_data.trim();
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+} catch (e) {
+	meta_dict['series'] = 'N/A';
+}
 
 
 
