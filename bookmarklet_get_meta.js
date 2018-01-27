@@ -231,8 +231,109 @@ try {
 
 } else {
 
+if (window.location.href.indexOf(".co.uk") > -1) {
+	//UK Version
+	document.querySelector('.productPublisherSummary').parentElement.appendChild(iDiv);
 
-	//UK/AU Version
+	var meta_data = document.querySelector('.publisherLabel').parentElement.innerText;
+
+	var meta_dict = {};
+
+	var out = 'Author:   [color=white]';
+	out2 = padding_right(' Author:',' ', 25);
+	var item_data = /By:(.*)/.exec(meta_data)[1].split(',')
+	var cnt = 0;
+	meta_dict['author'] = [];
+	item_data.forEach(p => {
+		cnt += 1;
+		if (cnt > 1) {
+			out += ', ';
+			out2 += ', ';
+		}
+		p = p.trim();
+		out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
+		out2 += p;
+		meta_dict['author'].push(p);
+	});
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+
+
+	var out = 'Read By:   [color=white]';
+	out2 = padding_right(' Read By:',' ', 25);
+	var item_data = /Narrated by:(.*)/.exec(meta_data)[1].split(',')
+	var cnt = 0;
+	meta_dict['read_by'] = [];
+	item_data.forEach(p => {
+		cnt += 1;
+		if (cnt > 1) {
+			out += ', ';
+			out2 += ', ';
+		}
+		p = p.trim();
+		out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
+		out2 += p;
+		meta_dict['read_by'].push(p);
+	});
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+
+
+
+	var out = 'Date:   [color=white]';
+	out2 = padding_right(' Date:',' ', 25);
+	var item_data = /Release date:(.*)/.exec(meta_data)[1]
+	out += item_data.trim();
+	out2 += item_data.trim();
+	meta_dict['date'] = item_data.trim();
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+
+
+try {
+	var out = 'Series:   [color=white]';
+	out2 = padding_right(' Series:',' ', 25);
+	var item_data = /Series:(.*)/.exec(meta_data)[1]
+	out += item_data.trim();
+	out2 += item_data.trim();
+	meta_dict['series'] = item_data.trim();
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+} catch (e) {
+	meta_dict['series'] = 'N/A';
+}
+
+
+
+	var out = 'Publisher:   [color=white]';
+	out2 = padding_right(' Publisher:',' ', 25);
+	var item_data = /Publisher:(.*)/.exec(meta_data)[1]
+	out += item_data.trim();
+	out2 += item_data.trim();
+	meta_dict['publisher'] = item_data.trim();
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+
+
+	var out = '';
+	out +=  document.querySelector('.productPublisherSummary').innerText.replace("Publisher's summary", "").trim();
+	iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	meta_dict['description'] = out;
+
+}
+}
+
+
+if (window.location.href.indexOf(".com.au") > -1) {
+
+
+
+	//AU Version
 	document.querySelector('#publisher-summary').parentElement.appendChild(iDiv);
 
 	var meta_data = document.querySelector('.adbl-prod-data-column').innerText;
@@ -324,6 +425,8 @@ try {
 	out +=  document.querySelector('#publisher-summary').innerText.replace("Publisher's Summary", "").trim();
 	iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 	meta_dict['description'] = out;
+
+
 
 }
 
