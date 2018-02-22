@@ -16,6 +16,10 @@ window['copy_clipboard'] = function copy_clipboard(obj) {
 
 }
 
+window['generate_search_string'] = function (slen) {
+  var s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  return Array(slen).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
+}
 
 window['padding_right'] = function (s, c, n) {
   if (! s || ! c || s.length >= n) { return s; }
@@ -46,7 +50,18 @@ document.querySelector('.productPublisherSummary').parentElement.appendChild(iDi
 
 var meta_dict = {};
 
-
+try {
+	var out = 'Title:   [color=white]';
+	out2 = padding_right(' Title:',' ', 25);
+	meta_dict['title'] = (document.querySelectorAll(".bc-list-item h1")[0].innerText.trim());
+	out += meta_dict['title'];
+	out2 += meta_dict['title'];
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';	
+} catch (e) {
+	meta_dict['title'] = 'N/A';
+}
 
 var out = 'Author:   [color=white]';
 out2 = padding_right(' Author:',' ', 25);
@@ -58,11 +73,13 @@ document.querySelectorAll('.authorLabel a').forEach(p => {
 		out += ', ';
 		out2 += ', ';
 	}
-	out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]'
-	out2 += p.text
-	meta_dict['author'].push(p.text)
+	out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]';
+	out2 += p.text;
+	meta_dict['author'].push(p.text);
 });
 out += '[/color]';
+meta_dict['author_nfo'] = out2;
+meta_dict['author_nfotemp'] = out;
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
@@ -78,11 +95,13 @@ document.querySelectorAll('.narratorLabel a').forEach(p => {
 		out += ', ';
 		out2 += ', ';
 	}
-	out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]'
-	out2 += p.text
-	meta_dict['read_by'].push(p.text)
+	out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]';
+	out2 += p.text;
+	meta_dict['read_by'].push(p.text);
 });
 out += '[/color]';
+meta_dict['read_by_nfo'] = out2;
+meta_dict['read_by_nfotemp'] = out;
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
@@ -91,7 +110,7 @@ iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 +
 
 var out = 'Date:   [color=white]';
 out2 = padding_right(' Date:',' ', 25);
-meta_dict['date'] = (document.querySelector('.releaseDateLabel').innerHTML.replace("Release date:","").trim())
+meta_dict['date'] = (document.querySelector('.releaseDateLabel').innerHTML.replace("Release date:","").trim());
 out += meta_dict['date'];
 out2 += meta_dict['date'];
 out += '[/color]';
@@ -101,8 +120,8 @@ iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 +
 
 try {
 	var out = 'Series:   [color=white]';
-	out2 = padding_right(' Date:',' ', 25);
-	meta_dict['series'] = (document.querySelector('.seriesLabel').innerText.replace("Series:","").trim())
+	out2 = padding_right(' Series:',' ', 25);
+	meta_dict['series'] = (document.querySelector('.seriesLabel').innerText.replace("Series:","").trim());
 	out += meta_dict['series'];
 	out2 += meta_dict['series'];
 	out += '[/color]';
@@ -112,7 +131,18 @@ try {
 	meta_dict['series'] = 'N/A';
 }
 
-
+try {
+	var out = 'Duration:   [color=white]';
+	out2 = padding_right(' Duration:',' ', 25);
+	meta_dict['series'] = (document.querySelector('.runtimeLabel').innerText.replace("Length:","").trim());
+	out += meta_dict['duration'];
+	out2 += meta_dict['duration'];
+	out += '[/color]';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+	iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';	
+} catch (e) {
+	meta_dict['duration'] = 'N/A';
+}
 
 
 
@@ -130,6 +160,145 @@ var out = '';
 out +=  document.querySelector('.productPublisherSummary').innerText.replace("Publisher's Summary", "").trim();
 meta_dict['description'] = out;
 iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+
+
+meta_dict['instance_hash'] = generate_search_string(18);
+
+nfo_post_template = `
+[hide][code]    DON'T POST THIS PART
+
+Subject:
+{meta:author_plain} - {meta:title_filtered} ({meta:date_orig}) {meta:series_formatted}
+
+Password:
+{meta:rar_passwd}
+
+Search String:
+abook.ws - {meta:instance_hash}
+
+POST BELOW THIS LINE [/code][/hide]
+
+[table]
+[tr]
+[td][img width=350]{meta:imgur_url}[/img][/td]
+[td]      [/td]
+[td][b]General Information[/b]
+===================
+[size=9pt]Title:   [color=white]{meta:title}[/color]
+Author:   [color=white]{meta:author}[/color]
+Read By:   [color=white]{meta:read_by}[/color]
+Date:   [color=white]{meta:date}[/color]
+Publisher:   [color=white]{meta:publisher}[/color]
+Series:   [color=white]{meta:series}[/color]
+
+[b]File Information[/b]
+================
+File Type:   [color=white]AAC/MP4[/color]
+Source Format:   [color=white]Audible[/color]
+Number of Chapters:   [color=white]{meta:chapters}[/color]
+Total Duration:   [color=white]{meta:duration_clean}[/color]
+Total Size:   [color=white]{meta:total_size}[/color]
+Encoded At:   [color=white]Lossless Conversion[/color][/size]
+[/td]
+[/tr]
+[/table]
+
+[b]Book Description[/b]
+================
+{meta:comment}
+
+
+[color=yellow]Posted by proxy[/color]
+[color=yellow]Posted by proxy for[/color] [url=https://kooba.pw/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
+
+
+[hide]Search: [code]abook.ws - {meta:instance_hash}[/code][/hide]
+[hide]Password: [code]{meta:rar_passwd}[/code][/hide]
+
+[size=8pt][i]Note: These are not my rips. Many thanks to the original uploader(s).[/i][/size]
+`;
+
+nfo_template = `
+ ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
+ Û     ±±   ²²²²²                     Û
+ Û    ±  ±  ²    ²                    Û
+ Û    ±  ±  ²    ²            ²   ²   Û
+ Û    ±  ±  ²    ²            ²   ²   Û
+ Û    ±  ±  ²²²²²  ²²²²² ²²²  ²  ²    Û
+ Û   ±±±±±  ²    ² ²   ² ²  ² ²²² .ws Û
+ Û   ±   ±  ²    ² ²   ² ²  ² ²  ²    Û
+ Û  ±    ±  ²    ² ²²²²  ²²²² ²   ²   Û
+ Û  ±    ±  ²²²²²             ²   ²   Û
+ ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
+
+General Information
+===================
+`;
+nfo_template += padding_right(' Title:',' ', 25) + '{meta:title}\n'
+nfo_template += padding_right(' Author:',' ', 25) + '{meta:author}\n'
+nfo_template += padding_right(' Read By:',' ', 25) + '{meta:read_by}\n'
+nfo_template += padding_right(' Date:',' ', 25) + '{meta:date}\n'
+nfo_template += padding_right(' Publisher:',' ', 25) + '{meta:publisher}\n'
+nfo_template += padding_right(' Series:',' ', 25) + '{meta:series}\n'
+nfo_template += `
+File Information
+================
+`
+nfo_template += padding_right(' File Type:',' ', 25) + 'AAC/MP4\n'
+nfo_template += padding_right(' Source Format:',' ', 25) + 'Audible\n'
+nfo_template += padding_right(' Number of Chapters:',' ', 25) + '{meta:chapters}\n'
+nfo_template += padding_right(' Total Duration:',' ', 25) + '{meta:duration_clean}\n'
+nfo_template += padding_right(' Total Size:',' ', 25) + '{meta:total_size}\n'
+nfo_template += padding_right(' Encoded At:',' ', 25) + 'Lossless Conversion\n'
+
+nfo_template += `
+Book Description
+================
+{meta:comment}
+`;
+
+
+
+
+// nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
+nfo_post_template = nfo_post_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
+nfo_post_template = nfo_post_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
+nfo_post_template = nfo_post_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
+nfo_post_template = nfo_post_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
+nfo_post_template = nfo_post_template.replace(/{meta:title}/g,  meta_dict['title']);
+nfo_post_template = nfo_post_template.replace(/{meta:author}/g,  meta_dict['author_nfotemp']);
+nfo_post_template = nfo_post_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfotemp']);
+nfo_post_template = nfo_post_template.replace(/{meta:date}/g,  meta_dict['date']);
+nfo_post_template = nfo_post_template.replace(/{meta:publisher}/g,  meta_dict['publisher']);
+nfo_post_template = nfo_post_template.replace(/{meta:series}/g,  meta_dict['series']);
+// nfo_post_template = nfo_post_template.replace(/{meta:chapters}/g,  meta_dict['']);
+nfo_post_template = nfo_post_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
+// nfo_post_template = nfo_post_template.replace(/{meta:total_size}/g,  meta_dict['']);
+nfo_post_template = nfo_post_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
+nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['instance_hash']);
+
+iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_post_template + '\n</textarea>';
+
+
+// nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
+nfo_template = nfo_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
+nfo_template = nfo_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
+nfo_template = nfo_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
+nfo_template = nfo_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
+nfo_template = nfo_template.replace(/{meta:title}/g,  meta_dict['title']);
+nfo_template = nfo_template.replace(/{meta:author}/g,  meta_dict['author_nfo']);
+nfo_template = nfo_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfo']);
+nfo_template = nfo_template.replace(/{meta:date}/g,  meta_dict['date']);
+nfo_template = nfo_template.replace(/{meta:publisher}/g,  meta_dict['publisher']);
+nfo_template = nfo_template.replace(/{meta:series}/g,  meta_dict['series']);
+// nfo_template = nfo_template.replace(/{meta:chapters}/g,  meta_dict['']);
+nfo_template = nfo_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
+// nfo_template = nfo_template.replace(/{meta:total_size}/g,  meta_dict['']);
+nfo_template = nfo_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
+nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['instance_hash']);
+
+iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
+
 
 } else {
 
@@ -326,7 +495,7 @@ try {
 	meta_dict['description'] = out;
 
 }
-}
+
 
 
 if (window.location.href.indexOf(".com.au") > -1) {
@@ -336,7 +505,7 @@ if (window.location.href.indexOf(".com.au") > -1) {
 	//AU Version
 	document.querySelector('#publisher-summary').parentElement.appendChild(iDiv);
 
-	var meta_data = document.querySelector('.adbl-prod-data-column').innerText;
+	var meta_data = document.querySelector('.publisherLabel').parentElement.innerText;
 
 	var meta_dict = {};
 
@@ -431,7 +600,7 @@ try {
 }
 
 }
-
+}
 
 
 document.getElementById('json_meta').value = '--AMETA-BEGIN--' + JSON.stringify(meta_dict) + '--AMETA-END--'
