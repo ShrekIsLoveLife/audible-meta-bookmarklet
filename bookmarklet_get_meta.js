@@ -16,6 +16,32 @@ window['copy_clipboard'] = function copy_clipboard(obj) {
 
 }
 
+
+//+ Jonas Raoni Soares Silva
+//@ http://jsfromhell.com/string/wordwrap [rev. #2]
+// String.wordWrap(maxLength: Integer, [breakWith: String = "\n"], [cutType: Integer = 0]): String
+//     Returns an string with the extra characters/words "broken".
+
+//     maxLength
+//         maximum amount of characters per line
+//     breakWtih
+//         string that will be added whenever it's needed to break the line
+//     cutType
+
+//             0 = words longer than "maxLength" will not be broken
+//             1 = words will be broken when needed
+//             2 = any word that trespass the limit will be broken
+String.prototype.wordWrap = function(m, b, c){
+    var i, j, l, s, r;
+    if(m < 1)
+        return this;
+    for(i = -1, l = (r = this.split("\n")).length; ++i < l; r[i] += s)
+        for(s = r[i], r[i] = ""; s.length > m; r[i] += s.slice(0, j) + ((s = s.slice(j)).length ? b : ""))
+            j = c == 2 || (j = s.slice(0, m + 1).match(/\S*(\s)?$/))[1] ? m : j.input.length - j[0].length
+            || c == 1 && m || j.input.length + (j = s.slice(m).match(/^\S*/)).input.length;
+    return r.join("\n");
+};
+
 window['generate_search_string'] = function (slen) {
   var s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   return Array(slen).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
@@ -219,17 +245,17 @@ Encoded At:   [color=white]CBR 64 kbps, 22.05 kHz, JntStereo[/color][/size]
 `;
 
 nfo_template = `
- ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
- Û     ±±   ²²²²²                     Û
- Û    ±  ±  ²    ²                    Û
- Û    ±  ±  ²    ²            ²   ²   Û
- Û    ±  ±  ²    ²            ²   ²   Û
- Û    ±  ±  ²²²²²  ²²²²² ²²²  ²  ²    Û
- Û   ±±±±±  ²    ² ²   ² ²  ² ²²² .ws Û
- Û   ±   ±  ²    ² ²   ² ²  ² ²  ²    Û
- Û  ±    ±  ²    ² ²²²²  ²²²² ²   ²   Û
- Û  ±    ±  ²²²²²             ²   ²   Û
- ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
+ **************************************
+ *     ##   %%%%%                     *
+ *    #  #  %    %                    *
+ *    #  #  %    %            %   %   *
+ *    #  #  %    %            %   %   *
+ *    #  #  %%%%%  %%%%% %%%  %  %    *
+ *   #####  %    % %   % %  % %%% .ws *
+ *   #   #  %    % %   % %  % %  %    *
+ *  #    #  %    % %%%%  %%%% %   %   *
+ *  #    #  %%%%%             %   %   *
+ **************************************
 
 General Information
 ===================
@@ -275,7 +301,7 @@ nfo_post_template = nfo_post_template.replace(/{meta:series}/g,  meta_dict['seri
 nfo_post_template = nfo_post_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
 // nfo_post_template = nfo_post_template.replace(/{meta:total_size}/g,  meta_dict['']);
 nfo_post_template = nfo_post_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['comment']);
+nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['description']);
 
 iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_post_template + '\n</textarea>';
 
@@ -295,7 +321,7 @@ nfo_template = nfo_template.replace(/{meta:series}/g,  meta_dict['series']);
 nfo_template = nfo_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
 // nfo_template = nfo_template.replace(/{meta:total_size}/g,  meta_dict['']);
 nfo_template = nfo_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['comment']);
+nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['description'].wordWrap(65, "\n", 1));
 
 iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
 
