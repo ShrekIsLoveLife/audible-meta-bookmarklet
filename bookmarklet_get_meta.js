@@ -292,6 +292,7 @@ Book Description
 
 // nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
 nfo_post_template = nfo_post_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
+nfo_post_template = nfo_post_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
 nfo_post_template = nfo_post_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
 nfo_post_template = nfo_post_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
 nfo_post_template = nfo_post_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
@@ -312,6 +313,7 @@ iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clip
 
 // nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
 nfo_template = nfo_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
+nfo_template = nfo_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
 nfo_template = nfo_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
 nfo_template = nfo_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
 nfo_template = nfo_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
