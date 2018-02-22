@@ -39,6 +39,7 @@ String.prototype.wordWrap = function(m, b, c){
         for(s = r[i], r[i] = ""; s.length > m; r[i] += s.slice(0, j) + ((s = s.slice(j)).length ? b : ""))
             j = c == 2 || (j = s.slice(0, m + 1).match(/\S*(\s)?$/))[1] ? m : j.input.length - j[0].length
             || c == 1 && m || j.input.length + (j = s.slice(m).match(/^\S*/)).input.length;
+    for (var i = 0; i < r.length; i++) { r[i] = r[i].trim(); }
     return r.join("\n");
 };
 
@@ -89,8 +90,8 @@ try {
 	meta_dict['title'] = 'N/A';
 }
 
-var out = 'Author:   [color=white]';
-out2 = padding_right(' Author:',' ', 25);
+
+var out = '[color=white]', out2 = '';
 var cnt = 0;
 meta_dict['author'] = [];
 document.querySelectorAll('.authorLabel a').forEach(p => {
@@ -106,13 +107,14 @@ document.querySelectorAll('.authorLabel a').forEach(p => {
 out += '[/color]';
 meta_dict['author_nfo'] = out2;
 meta_dict['author_nfotemp'] = out;
+out = 'Author:   ' + out;
+out2 = padding_right(' Author:',' ', 25) + out2;
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
 
-var out = 'Read By:   [color=white]';
-out2 = padding_right(' Read By:',' ', 25);
+var out = '[color=white]', out2 = '';
 var cnt = 0;
 meta_dict['read_by'] = [];
 document.querySelectorAll('.narratorLabel a').forEach(p => {
@@ -128,6 +130,8 @@ document.querySelectorAll('.narratorLabel a').forEach(p => {
 out += '[/color]';
 meta_dict['read_by_nfo'] = out2;
 meta_dict['read_by_nfotemp'] = out;
+out = 'Read By:   ' + out;
+out2 = padding_right(' Read By:',' ', 25) + out2;
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
@@ -160,7 +164,7 @@ try {
 try {
 	var out = 'Duration:   [color=white]';
 	out2 = padding_right(' Duration:',' ', 25);
-	meta_dict['series'] = (document.querySelector('.runtimeLabel').innerText.replace("Length:","").trim());
+	meta_dict['duration'] = (document.querySelector('.runtimeLabel').innerText.replace("Length:","").trim());
 	out += meta_dict['duration'];
 	out2 += meta_dict['duration'];
 	out += '[/color]';
