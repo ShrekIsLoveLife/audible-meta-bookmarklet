@@ -193,12 +193,12 @@ Series:   [color=white]{meta:series}[/color]
 
 [b]File Information[/b]
 ================
-File Type:   [color=white]AAC/MP4[/color]
+File Type:   [color=white]MP3[/color]
 Source Format:   [color=white]Audible[/color]
 Number of Chapters:   [color=white]{meta:chapters}[/color]
 Total Duration:   [color=white]{meta:duration_clean}[/color]
 Total Size:   [color=white]{meta:total_size}[/color]
-Encoded At:   [color=white]Lossless Conversion[/color][/size]
+Encoded At:   [color=white]CBR 64 kbps, 22.05 kHz, JntStereo[/color][/size]
 [/td]
 [/tr]
 [/table]
@@ -244,12 +244,12 @@ nfo_template += `
 File Information
 ================
 `
-nfo_template += padding_right(' File Type:',' ', 25) + 'AAC/MP4\n'
+nfo_template += padding_right(' File Type:',' ', 25) + 'MP3\n'
 nfo_template += padding_right(' Source Format:',' ', 25) + 'Audible\n'
 nfo_template += padding_right(' Number of Chapters:',' ', 25) + '{meta:chapters}\n'
 nfo_template += padding_right(' Total Duration:',' ', 25) + '{meta:duration_clean}\n'
 nfo_template += padding_right(' Total Size:',' ', 25) + '{meta:total_size}\n'
-nfo_template += padding_right(' Encoded At:',' ', 25) + 'Lossless Conversion\n'
+nfo_template += padding_right(' Encoded At:',' ', 25) + 'CBR 64 kbps, 22.05 kHz, JntStereo\n'
 
 nfo_template += `
 Book Description
@@ -275,7 +275,7 @@ nfo_post_template = nfo_post_template.replace(/{meta:series}/g,  meta_dict['seri
 nfo_post_template = nfo_post_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
 // nfo_post_template = nfo_post_template.replace(/{meta:total_size}/g,  meta_dict['']);
 nfo_post_template = nfo_post_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['instance_hash']);
+nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['comment']);
 
 iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_post_template + '\n</textarea>';
 
