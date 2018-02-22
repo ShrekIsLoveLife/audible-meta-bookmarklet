@@ -295,7 +295,7 @@ nfo_template = nfo_template.replace(/{meta:series}/g,  meta_dict['series']);
 nfo_template = nfo_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
 // nfo_template = nfo_template.replace(/{meta:total_size}/g,  meta_dict['']);
 nfo_template = nfo_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['instance_hash']);
+nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['comment']);
 
 iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
 
