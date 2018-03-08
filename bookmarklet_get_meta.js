@@ -616,7 +616,7 @@ Password:
 {meta:rar_passwd}
 
 Search String:
-abook.ws - {meta:instance_hash}
+abook.to - {meta:instance_hash}
 
 POST BELOW THIS LINE [/code][/hide]
 
@@ -640,7 +640,7 @@ Source Format:   [color=white]Audible[/color]
 Number of Chapters:   [color=white]{meta:chapters}[/color]
 Total Duration:   [color=white]{meta:duration_clean}[/color]
 Total Size:   [color=white]{meta:total_size}[/color]
-Encoded At:   [color=white]CBR 64 kbps, 22.05 kHz, JntStereo[/color][/size]
+Encoded At:   [color=white]64 kbps, 22.05 kHz, Stereo[/color][/size]
 [/td]
 [/tr]
 [/table]
@@ -651,10 +651,10 @@ Encoded At:   [color=white]CBR 64 kbps, 22.05 kHz, JntStereo[/color][/size]
 
 
 [color=yellow]Posted by proxy[/color]
-[color=yellow]Posted by proxy for[/color] [url=https://kooba.pw/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
+[color=yellow]Posted by proxy for[/color] [url=https://abook.to/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
 
 
-[hide]Search: [code]abook.ws - {meta:instance_hash}[/code][/hide]
+[hide]Search: [code]abook.to - {meta:instance_hash}[/code][/hide]
 [hide]Password: [code]{meta:rar_passwd}[/code][/hide]
 
 [size=8pt][i]Note: These are not my rips. Many thanks to the original uploader(s).[/i][/size]
@@ -667,7 +667,7 @@ nfo_template = `
  *    #  #  %    %            %   %   *
  *    #  #  %    %            %   %   *
  *    #  #  %%%%%  %%%%% %%%  %  %    *
- *   #####  %    % %   % %  % %%% .ws *
+ *   #####  %    % %   % %  % %%% .to *
  *   #   #  %    % %   % %  % %  %    *
  *  #    #  %    % %%%%  %%%% %   %   *
  *  #    #  %%%%%             %   %   *
@@ -691,7 +691,7 @@ nfo_template += padding_right(' Source Format:',' ', 25) + 'Audible\n'
 nfo_template += padding_right(' Number of Chapters:',' ', 25) + '{meta:chapters}\n'
 nfo_template += padding_right(' Total Duration:',' ', 25) + '{meta:duration_clean}\n'
 nfo_template += padding_right(' Total Size:',' ', 25) + '{meta:total_size}\n'
-nfo_template += padding_right(' Encoded At:',' ', 25) + 'CBR 64 kbps, 22.05 kHz, JntStereo\n'
+nfo_template += padding_right(' Encoded At:',' ', 25) + '64 kbps, 22.05 kHz, Stereo\n'
 
 nfo_template += `
 Book Description
@@ -707,7 +707,7 @@ nfo_post_template = nfo_post_template.replace(/{meta:title_filtered}/g,  meta_di
 nfo_post_template = nfo_post_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
 nfo_post_template = nfo_post_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
 nfo_post_template = nfo_post_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
-nfo_post_template = nfo_post_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
+nfo_post_template = nfo_post_template.replace(/{meta:rar_passwd}/g, 'abook_4-&all');
 nfo_post_template = nfo_post_template.replace(/{meta:title}/g,  meta_dict['title']);
 nfo_post_template = nfo_post_template.replace(/{meta:author}/g,  meta_dict['author_nfotemp']);
 nfo_post_template = nfo_post_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfotemp']);
@@ -728,7 +728,7 @@ nfo_template = nfo_template.replace(/{meta:title_filtered}/g,  meta_dict['title'
 nfo_template = nfo_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
 nfo_template = nfo_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
 nfo_template = nfo_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
-nfo_template = nfo_template.replace(/{meta:rar_passwd}/g, 'abook.ws_4you');
+nfo_template = nfo_template.replace(/{meta:rar_passwd}/g, 'abook_4-&all');
 nfo_template = nfo_template.replace(/{meta:title}/g,  meta_dict['title']);
 nfo_template = nfo_template.replace(/{meta:author}/g,  meta_dict['author_nfo']);
 nfo_template = nfo_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfo']);
