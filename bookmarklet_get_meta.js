@@ -619,6 +619,9 @@ meta_dict['instance_hash'] = generate_search_string(18);
 nfo_post_template = `
 [hide][code]    DON'T POST THIS PART
 
+Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with \\t)
+{meta:author_plain}\\t{meta:title_filtered}\\t{meta:series_formatted}\\t{meta:date_orig}\\tabook.to - {meta:instance_hash}\\t{meta:rar_passwd}
+
 Subject:
 {meta:author_plain} - {meta:title_filtered} ({meta:date_orig}) {meta:series_formatted}
 
