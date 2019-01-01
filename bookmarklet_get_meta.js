@@ -113,7 +113,7 @@ iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + 
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
-iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title']  + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'].replace('&', ' ')  + ' - ' + meta_dict['author_nfo'].replace('&', ' ') + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
 
 
 
