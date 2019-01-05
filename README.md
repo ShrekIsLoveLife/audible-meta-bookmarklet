@@ -8,5 +8,5 @@ Clicking each box, will copy the box's information to clipboard.
 [Click Here to get Bookmarklet](https://shrekislovelife.github.io/audible-meta-bookmarklet/bookmarklet.html "Click Here to get Bookmarklet")
 
 ##### Create Bookmarklet From JS Snippet
-[Click Here to Make Bookmarklet](https://shrekislovelife.github.io/audible-meta-bookmarklet/_make_bookmarklet.html "Click Here to Make Bookmarklet")
+[Click Here to Make Bookmarklet](https://shrekislovelife.github.io/audible-meta-bookmarklet/make_bookmarklet.html "Click Here to Make Bookmarklet")
 
