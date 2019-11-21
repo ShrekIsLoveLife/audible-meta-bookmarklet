@@ -617,10 +617,10 @@ try {
 meta_dict['instance_hash'] = generate_search_string(18);
 
 nfo_post_template = `
-[hide][code]    DON'T POST THIS PART
+[hide thanked=1][code]    DON'T POST THIS PART
 
 Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with \\t)
-{meta:author_plain}\\t{meta:title_filtered}\\t{meta:series_formatted}\\t{meta:date_orig}\\tabook.to - {meta:instance_hash}\\t{meta:rar_passwd}
+{meta:author_plain}\\t{meta:title_filtered}\\t{meta:series_formatted}\\t{meta:date_orig}\\tabook.link - {meta:instance_hash}\\t{meta:rar_passwd}
 
 Subject:
 {meta:author_plain} - {meta:title_filtered} ({meta:date_orig}) {meta:series_formatted}
@@ -629,7 +629,7 @@ Password:
 {meta:rar_passwd}
 
 Search String:
-abook.to - {meta:instance_hash}
+abook.link - {meta:instance_hash}
 
 POST BELOW THIS LINE [/code][/hide]
 
@@ -667,27 +667,36 @@ Encoded At:   [color=white]Lossless Conversion
 
 
 [color=yellow]Posted by proxy[/color]
-[color=yellow]Posted by proxy for[/color] [url=https://abook.to/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
+[color=yellow]Posted by proxy for[/color] [url=https://abook.link/book/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
 
 
-[hide]Search: [code]abook.to - {meta:instance_hash}[/code][/hide]
-[hide]Password: [code]{meta:rar_passwd}[/code][/hide]
+[hide thanked=1]Search: [code]abook.link - {meta:instance_hash}[/code]
+Password: [code]{meta:rar_passwd}[/code][/hide]
 
 [size=8pt][i]Note: These are not my rips. Many thanks to the original uploader(s).[/i][/size]
 `;
 
 nfo_template = `
- **************************************
- *     ##   %%%%%                     *
- *    #  #  %    %                    *
- *    #  #  %    %            %   %   *
- *    #  #  %    %            %   %   *
- *    #  #  %%%%%  %%%%% %%%  %  %    *
- *   #####  %    % %   % %  % %%% .to *
- *   #   #  %    % %   % %  % %  %    *
- *  #    #  %    % %%%%  %%%% %   %   *
- *  #    #  %%%%%             %   %   *
- **************************************
+                  ▄▄▄▄▄▄▄▄▄
+             ▄▄███████████████▄▄
+           ▄████▀▀          ▀▀████▄
+       ▐▄▄  ▀▀                  ▀▀  ▄▄▌
+       ▐██████▄                ▄██████▌
+       ▐█████████▄          ▄█████████▌
+     ▌ ▐█████████████▄  ▄█████████████▌ ▐
+    █▌  ▀████████████████████████████▀  ▐█
+    ██▄▄  ▐█████████████████████████  ▄▄██
+ ▄█ █████  ██████ abook.link ██████▌ █████  █▄
+▐██▌█████  ████████████████████████▌ █████ ▐██▌
+▐██▌█████  █████ ... for your █████▌ █████ ▐██▌
+▐██▌█████  ██ listening pleasure ██▌ █████ ▐██▌
+▐██▌█████  ████████████████████████▌ █████ ▐██▌
+    ▐████  ████████████████████████▌ █████
+         ▄██████████████████████████▄
+          ▀████████████████████████▀
+             ▀██████████████████▀
+               ▀██████████████▀
+                  ▀▀██████▀▀
 
 General Information
 ===================
@@ -759,7 +768,7 @@ nfo_template = nfo_template.replace(/{meta:duration_clean}/g,  meta_dict['durati
 nfo_template = nfo_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
 nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['description'].wordWrap(65, "\n", 1));
 
-iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
+iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px; font-family: \'Courier New\'; font-size: 1.0em; line-height: 1.3em;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
 
 
 
