@@ -43,6 +43,13 @@ String.prototype.wordWrap = function(m, b, c){
     return r.join("\n");
 };
 
+String.prototype.strip_html = function(){
+  html = this.replace(/(\<\/p\>|\<\/div\>|\<br[^\>]*\>)/gi,"$1\n");
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent.trim() || "";
+}
+
+
 window['generate_search_string'] = function (slen) {
   var s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   return Array(slen).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
@@ -69,6 +76,186 @@ iDiv.id = 'audible_meta_data';
 iDiv.className = 'audible_meta_data';
 iDiv.style.border = '1px solid black';
 iDiv.innerHTML += '<br/><br/><div id="a_meta_top"><b>Meta Data</b> <i>(Click a box to copy to clipboard)</i></div><br/><hr/><b>json</b><br/><textarea style="height: 200px;" onclick="copy_clipboard(this)" id="json_meta"></textarea><br/>';
+
+var audible_json_data = [];
+try {
+  var audible_json_data = JSON.parse( document.querySelectorAll('script[type="application/ld+json"]')[1].innerText )[0];
+} catch (e) { }
+
+if ('description' in audible_json_data) {
+  console.log('JSON Version');
+  document.body.insertBefore(iDiv, document.body.firstChild);
+
+  var meta_dict = {};
+
+  try {
+    var out = 'Title:   [color=white]';
+    out2 = padding_right(' Title:',' ', 25);
+    meta_dict['title'] = audible_json_data['name'].strip_html();
+    out += meta_dict['title'];
+    out2 += meta_dict['title'];
+    out += '[/color]';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
+  } catch (e) {
+    meta_dict['title'] = 'N/A';
+  }
+
+
+  try {
+    var out = '[color=white]', out2 = '';
+    var cnt = 0;
+    meta_dict['author'] = [];
+    audible_json_data['author'].forEach(function(item){
+      cnt += 1;
+      if (cnt > 1) {
+        out += ', ';
+        out2 += ', ';
+      }
+      item.name = item.name.strip_html();
+      out += '[url=http://www.audible.com/search?advsearchKeywords=' + item.name + ']' + item.name + '[/url]';
+      out2 += item.name;
+      meta_dict['author'].push(item.name);
+    });
+    out += '[/color]';
+    meta_dict['author_nfo'] = out2;
+    meta_dict['author_nfotemp'] = out;
+    out = 'Author:   ' + out;
+    out2 = padding_right(' Author:',' ', 25) + out2;
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+  } catch (e) {
+    meta_dict['author'] = [];
+    meta_dict['author_nfo'] = 'N/A';
+    meta_dict['author_nfotemp'] = 'N/A';
+  }
+
+
+  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
+
+
+  try {
+    var out = '[color=white]', out2 = '';
+    var cnt = 0;
+    meta_dict['read_by'] = [];
+    audible_json_data['readBy'].forEach(function(item){
+      cnt += 1;
+      if (cnt > 1) {
+        out += ', ';
+        out2 += ', ';
+      }
+      item.name = item.name.strip_html();
+      out += '[url=http://www.audible.com/search?advsearchKeywords=' + item.name + ']' + item.name + '[/url]';
+      out2 += item.name;
+      meta_dict['read_by'].push(item.name);
+    });
+    out += '[/color]';
+    meta_dict['read_by_nfo'] = out2;
+    meta_dict['read_by_nfotemp'] = out;
+    out = 'Read By:   ' + out;
+    out2 = padding_right(' Read By:',' ', 25) + out2;
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+  } catch (e) {
+    meta_dict['read_by'] = [];
+    meta_dict['read_by_nfo'] = 'N/A';
+    meta_dict['read_by_nfotemp'] = 'N/A';
+  }
+
+
+
+
+  try {
+    var out = 'Date:   [color=white]';
+    out2 = padding_right(' Date:',' ', 25);
+    meta_dict['date'] = audible_json_data['datePublished'].strip_html();
+    out += meta_dict['date'];
+    out2 += meta_dict['date'];
+    out += '[/color]';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+  } catch (e) {
+    meta_dict['date'] = 'N/A';
+  }
+
+
+
+  // not exposed in json object, it's in search json
+  meta_dict['series'] = '';
+  if ('series' in audible_json_data) {
+    meta_dict['series'] = audible_json_data['series'].strip_html();
+  } else {
+    try {
+      var meta_data = document.body.innerText;
+      meta_dict['series'] = /Series:(.*)/.exec(meta_data)[1];
+    } catch (e) {}
+
+    if ( meta_dict['series'] == '' ) {
+      try {
+          var meta_data = document.body.innerText;
+          meta_dict['series'] = /Serie:(.*)/.exec(meta_data)[1];
+      } catch (e) {}
+    }
+
+  }
+
+
+  if ( meta_dict['series'] != '' ) {
+    var out = 'Series:   [color=white]';
+    out2 = padding_right(' Series:',' ', 25);
+    meta_dict['series'] = meta_dict['series'].strip_html();
+    out += meta_dict['series'];
+    out2 += meta_dict['series'];
+    out += '[/color]';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
+  } else {
+    meta_dict['series'] = 'N/A';
+  }
+
+
+
+  try {
+    var out = 'Duration:   [color=white]';
+    out2 = padding_right(' Duration:',' ', 25);
+    meta_dict['duration'] = audible_json_data['duration'].replace(/pt/i,'').replace(/h/i,'hr ').replace(/m/i,'min').strip_html();
+    out += meta_dict['duration'];
+    out2 += meta_dict['duration'];
+    out += '[/color]';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
+  } catch (e) {
+    meta_dict['duration'] = 'N/A';
+  }
+
+
+  try {
+    var out = 'Publisher:   [color=white]';
+    out2 = padding_right(' Publisher:',' ', 25);
+    meta_dict['publisher'] = audible_json_data['publisher'].strip_html();
+    out += meta_dict['publisher'];
+    out2 += meta_dict['publisher'];
+    out += '[/color]';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
+  } catch (e) {
+    meta_dict['publisher'] = 'N/A';
+  }
+
+
+  try {
+    var out = '';
+    out +=  audible_json_data['description'].strip_html();
+    meta_dict['description'] = out;
+    iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
+  } catch (e) {
+    meta_dict['description'] = 'N/A';
+  }
+
+
+
+} else {
 
 
 if ( window.location.href.indexOf(".co.uk") == -1 && window.location.href.indexOf(".com.au") == -1 && window.location.href.indexOf(".de") == -1) {
@@ -113,7 +300,9 @@ iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + 
 iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
-iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'].replace('&', ' ')  + ' - ' + meta_dict['author_nfo'].replace('&', ' ') + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
+  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
 
 
 
@@ -244,7 +433,9 @@ if (window.location.href.indexOf(".de") > -1) {
   iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
   iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title']  + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
+  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
 
   var out = '[color=white]';
   out2 = '';
@@ -379,7 +570,9 @@ if (window.location.href.indexOf(".co.uk") > -1) {
   iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title']  + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
+  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+
 
 
   var out = '[color=white]';
@@ -518,7 +711,7 @@ if (window.location.href.indexOf(".com.au") > -1) {
   iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
 
 
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title']  + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
 
 
   var out = '[color=white]';
@@ -611,7 +804,7 @@ try {
 
 }
 }
-
+}
 
 
 meta_dict['instance_hash'] = generate_search_string(18);
