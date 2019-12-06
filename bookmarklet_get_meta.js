@@ -688,10 +688,7 @@ document.getElementById('view_searches').style.display = 'none';
 }
 
 
-if (document.getElementById('audible_meta_data_container')) {
-  alert('Bookmarkelt is already loaded');
-} else {
-
+function run_bookmarklet() {
   window['audible_meta'] = get_audible_data();
 
   create_audible_meta_ui();
@@ -724,4 +721,15 @@ if (document.getElementById('audible_meta_data_container')) {
     copy_clipboard(document.getElementById('meta_template'));
   });
 
+}
+
+
+if (document.getElementById('audible_meta_data_container')) {
+  alert('Bookmarkelt is already loaded');
+} else {
+  if ( window.location.href.search(/audible\./gi) ) {
+    run_bookmarklet();
+  } else {
+    alert('This bookmarklet is only meant to be run on Audible pages.');
+  }
 }
