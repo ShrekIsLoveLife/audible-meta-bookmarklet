@@ -449,7 +449,7 @@ iDiv.innerHTML = `<style>
     height: 300px;
     vertical-align: top;
     overflow: scroll;
-      white-space: normal;
+      white-space: pre-wrap;
   }
 
 
@@ -664,7 +664,11 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
 
       document.getElementById('link_fantastic_fiction').href = 'https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + book_query;
       
-
+// https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query=
+// https://rbdigital.com/search/eaudio?all=Augur%2Bof%2BDespair%2BPart%2B2%2BChris%2BDows&author=Chris%2BDows&page-index=0&page-size=60&search-source=advanced-search&title=Augur%2Bof%2BDespair%2BPart%2B2%2B
+// http://audiobookbay.nl/?s=augur+of+despair+part+2+chris+dows
+// https://abook.link/book/tools/search_abook.php?search=Augur+of+Despair+Part+2+Chris+Dows
+// save to file
       document.getElementById('link_nzbindex').href = 'https://nzbindex.com/search/?q=' + window['audible_meta']['instance_hash'];
       document.getElementById('link_binsearch').href = 'https://www.binsearch.info/?max=250&adv_age=&server=2&q=' + window['audible_meta']['instance_hash'];
       document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=' + window['audible_meta']['instance_hash'];
