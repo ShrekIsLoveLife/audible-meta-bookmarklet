@@ -688,36 +688,40 @@ document.getElementById('view_searches').style.display = 'none';
 }
 
 
+if (document.getElementById('audible_meta_data_container')) {
+  alert('Bookmarkelt is already loaded');
+} else {
 
-window['audible_meta'] = get_audible_data();
+  window['audible_meta'] = get_audible_data();
 
-create_audible_meta_ui();
+  create_audible_meta_ui();
 
-document.getElementById('meta_cover').value = window['audible_meta']['cover'];
-document.getElementById('meta_genre').value = window['audible_meta']['genre'];
-document.getElementById('meta_title').value = window['audible_meta']['title'];
-document.getElementById('meta_series').value = window['audible_meta']['series'];
-document.getElementById('meta_author').value = window['audible_meta']['author'];
-document.getElementById('meta_readby').value = window['audible_meta']['read_by'];
-document.getElementById('meta_date').value = window['audible_meta']['date'];
-document.getElementById('meta_duration').value = window['audible_meta']['duration'];
-document.getElementById('meta_publisher').value = window['audible_meta']['publisher'];
-document.getElementById('meta_language').value = window['audible_meta']['language'];
-document.getElementById('meta_search_string').value = window['audible_meta']['instance_hash'];
-document.getElementById('meta_archive_pass').value = window['audible_meta']['archive_pass'];
-document.getElementById('meta_language').value = window['audible_meta']['language'];
-document.getElementById('meta_description').value = window['audible_meta']['description'];
+  document.getElementById('meta_cover').value = window['audible_meta']['cover'];
+  document.getElementById('meta_genre').value = window['audible_meta']['genre'];
+  document.getElementById('meta_title').value = window['audible_meta']['title'];
+  document.getElementById('meta_series').value = window['audible_meta']['series'];
+  document.getElementById('meta_author').value = window['audible_meta']['author'];
+  document.getElementById('meta_readby').value = window['audible_meta']['read_by'];
+  document.getElementById('meta_date').value = window['audible_meta']['date'];
+  document.getElementById('meta_duration').value = window['audible_meta']['duration'];
+  document.getElementById('meta_publisher').value = window['audible_meta']['publisher'];
+  document.getElementById('meta_language').value = window['audible_meta']['language'];
+  document.getElementById('meta_search_string').value = window['audible_meta']['instance_hash'];
+  document.getElementById('meta_archive_pass').value = window['audible_meta']['archive_pass'];
+  document.getElementById('meta_language').value = window['audible_meta']['language'];
+  document.getElementById('meta_description').value = window['audible_meta']['description'];
 
 
-document.getElementById('copy_meta_json').addEventListener('click', () => { 
-  copy_clipboard(document.getElementById('meta_json'));
-});
+  document.getElementById('copy_meta_json').addEventListener('click', () => { 
+    copy_clipboard(document.getElementById('meta_json'));
+  });
 
-document.getElementById('copy_meta_nfo').addEventListener('click', () => { 
-  copy_clipboard(document.getElementById('meta_nfo'));
-});
+  document.getElementById('copy_meta_nfo').addEventListener('click', () => { 
+    copy_clipboard(document.getElementById('meta_nfo'));
+  });
 
-document.getElementById('copy_meta_template').addEventListener('click', () => { 
-  copy_clipboard(document.getElementById('meta_template'));
-});
+  document.getElementById('copy_meta_template').addEventListener('click', () => { 
+    copy_clipboard(document.getElementById('meta_template'));
+  });
 
+}
