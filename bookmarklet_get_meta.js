@@ -727,7 +727,7 @@ function run_bookmarklet() {
 if (document.getElementById('audible_meta_data_container')) {
   alert('Bookmarkelt is already loaded');
 } else {
-  if ( window.location.href.search(/audible\./gi) ) {
+  if ( window.location.href.search(/audible\./gi) > 0 ) {
     run_bookmarklet();
   } else {
     alert('This bookmarklet is only meant to be run on Audible pages.');
