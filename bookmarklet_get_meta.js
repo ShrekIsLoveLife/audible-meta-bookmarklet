@@ -538,9 +538,9 @@ iDiv.innerHTML = `<style>
 
 <p><label for="meta_series">Series: </label><input type='text' id="meta_series" placeholder='series ...'></p>
 
-<p><label for="meta_author">Author: </label><input type='text' id="meta_author" placeholder='author (comma separated) ...'></p>
+<p><label for="meta_author">Author: </label><input type='text' id="meta_author" placeholder='author (comma space separated) ...'></p>
 
-<p><label for="meta_readby">Read by: </label><input type='text' id="meta_readby" placeholder='read by (comma separated) ...'></p>
+<p><label for="meta_readby">Read by: </label><input type='text' id="meta_readby" placeholder='read by (comma space separated) ...'></p>
 
 <p><label for="meta_date">Date: </label><input type='text' id="meta_date" placeholder='date yyyy-mm-dd...'></p>
 
@@ -641,7 +641,8 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
 
     }
     if (clicked == 'meta') { 
-
+      window['audible_meta']['author'] = window['audible_meta']['author'].split(', ');
+      window['audible_meta']['read_by'] = window['audible_meta']['read_by'].split(', ');
       document.getElementById('meta_json').value = '--AMETA-BEGIN--' + JSON.stringify(window['audible_meta']) + '--AMETA-END--'
 
       document.getElementById('view_meta').style.display = 'block';
