@@ -127,7 +127,7 @@ window['get_audible_data'] = function () {
       for (var i = 1; i < breadcrumb_json_data.length; i++) { // starting on 1 to remove home
         tmp.push(breadcrumb_json_data[i]['item']['name']);
       }
-      meta_dict['genre'] = tmp.join();    
+      meta_dict['genre'] = tmp.join(', ');    
     } catch (e) { }
 
 
