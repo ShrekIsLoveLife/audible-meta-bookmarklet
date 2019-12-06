@@ -8,29 +8,23 @@ window['copy_clipboard'] = function copy_clipboard(obj) {
   var iDiv3 = document.createElement('div');
   iDiv3.className = 'copied_to_clipboard';
   iDiv3.style.border = '1px solid red';
-  iDiv3.style.backgroundColor = 'red'
-  iDiv3.style.color = 'yellow'
-  iDiv3.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text copied to clipboard';
+  iDiv3.style.backgroundColor = 'red';
+  iDiv3.style.color = 'yellow';
+  iDiv3.style.textAlign = 'center';
+  iDiv3.style.display = 'inline-block';
+  iDiv3.style.position = 'absolute';
+  iDiv3.style.width = '600px';
+  iDiv3.innerHTML = 'text copied to clipboard';
   obj.parentNode.insertBefore(iDiv3, obj);
-  setTimeout(function(){ removeElementsByClass('copied_to_clipboard') }, 2000);
-
+  setTimeout(function() {
+    var elements = document.getElementsByClassName('copied_to_clipboard');
+    while(elements.length > 0){ elements[0].parentNode.removeChild(elements[0]); }
+   }, 2000);
 }
 
 
-//+ Jonas Raoni Soares Silva
-//@ http://jsfromhell.com/string/wordwrap [rev. #2]
-// String.wordWrap(maxLength: Integer, [breakWith: String = "\n"], [cutType: Integer = 0]): String
-//     Returns an string with the extra characters/words "broken".
-
-//     maxLength
-//         maximum amount of characters per line
-//     breakWtih
-//         string that will be added whenever it's needed to break the line
-//     cutType
-
-//             0 = words longer than "maxLength" will not be broken
-//             1 = words will be broken when needed
-//             2 = any word that trespass the limit will be broken
+// http://jsfromhell.com/string/wordwrap
+// maxLength, breakWith, cutType (0=not broken, 1=broken when needed, 2 broken past limit)
 String.prototype.wordWrap = function(m, b, c){
     var i, j, l, s, r;
     if(m < 1)
@@ -42,6 +36,7 @@ String.prototype.wordWrap = function(m, b, c){
     for (var i = 0; i < r.length; i++) { r[i] = r[i].trim(); }
     return r.join("\n");
 };
+
 
 String.prototype.strip_html = function(){
   html = this.replace(/(\<\/p\>|\<\/div\>|\<br[^\>]*\>)/gi,"$1\n");
@@ -55,6 +50,7 @@ window['generate_search_string'] = function (slen) {
   return Array(slen).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
 }
 
+
 window['padding_right'] = function (s, c, n) {
   if (! s || ! c || s.length >= n) { return s; }
   var max = (n - s.length)/c.length;
@@ -62,812 +58,172 @@ window['padding_right'] = function (s, c, n) {
   return s;
 }
 
-window['removeElementsByClass'] = function (className){
-    var elements = document.getElementsByClassName(className);
-    while(elements.length > 0){
-        elements[0].parentNode.removeChild(elements[0]);
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
     }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+function eraseCookie(name) {   
+    document.cookie = name+'=; Max-Age=-99999999;';  
 }
 
-document.querySelector('head').innerHTML += '<style>.audible_meta_data textarea { width: 100%; height: 50px; overflow-y: scroll; }</style>';
 
-var iDiv = document.createElement('div');
-iDiv.id = 'audible_meta_data';
-iDiv.className = 'audible_meta_data';
-iDiv.style.border = '1px solid black';
-iDiv.innerHTML += '<br/><br/><div id="a_meta_top"><b>Meta Data</b> <i>(Click a box to copy to clipboard)</i></div><br/><hr/><b>json</b><br/><textarea style="height: 200px;" onclick="copy_clipboard(this)" id="json_meta"></textarea><br/>';
+window['get_audible_data'] = function () {
 
-var audible_json_data = [];
-try {
-  var audible_json_data = JSON.parse( document.querySelectorAll('script[type="application/ld+json"]')[1].innerText )[0];
-} catch (e) { }
 
-if ('description' in audible_json_data) {
-  console.log('JSON Version');
-  document.body.insertBefore(iDiv, document.body.firstChild);
+  var meta_dict = {
+    'title': '',
+    'author': '',
+    'read_by': '',
+    'date': '',
+    'series': '',
+    'cover': '',
+    'duration': '',
+    'publisher': '',
+    'description': '',
+    'language': '',
+    'genre': '',
+    'instance_hash': '',
+    'archive_pass': 'abook_4-&all',
+  };
 
-  var meta_dict = {};
 
-  try {
-    var out = 'Title:   [color=white]';
-    out2 = padding_right(' Title:',' ', 25);
-    meta_dict['title'] = audible_json_data['name'].strip_html();
-    out += meta_dict['title'];
-    out2 += meta_dict['title'];
-    out += '[/color]';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-  } catch (e) {
-    meta_dict['title'] = 'N/A';
+  var tmp = getCookie('archive_pass');
+  if ( tmp ) {
+    meta_dict['archive_pass'] = tmp;
   }
 
 
+  window['audible_json_data'] = [];
   try {
-    var out = '[color=white]', out2 = '';
-    var cnt = 0;
-    meta_dict['author'] = [];
-    audible_json_data['author'].forEach(function(item){
-      cnt += 1;
-      if (cnt > 1) {
-        out += ', ';
-        out2 += ', ';
-      }
-      item.name = item.name.strip_html();
-      out += '[url=http://www.audible.com/search?advsearchKeywords=' + item.name + ']' + item.name + '[/url]';
-      out2 += item.name;
-      meta_dict['author'].push(item.name);
-    });
-    out += '[/color]';
-    meta_dict['author_nfo'] = out2;
-    meta_dict['author_nfotemp'] = out;
-    out = 'Author:   ' + out;
-    out2 = padding_right(' Author:',' ', 25) + out2;
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-  } catch (e) {
-    meta_dict['author'] = [];
-    meta_dict['author_nfo'] = 'N/A';
-    meta_dict['author_nfotemp'] = 'N/A';
-  }
+    window['audible_json_data'] = JSON.parse( document.querySelectorAll('script[type="application/ld+json"]')[1].innerText )[0];
+  } catch (e) { }
 
+  if ('description' in window['audible_json_data']) {
+    console.log('JSON Version');
 
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
+    var tmp = '';
+    var item = '';
+    audible_json_data = window['audible_json_data'];
 
-
-
-  try {
-    var out = '[color=white]', out2 = '';
-    var cnt = 0;
-    meta_dict['read_by'] = [];
-    audible_json_data['readBy'].forEach(function(item){
-      cnt += 1;
-      if (cnt > 1) {
-        out += ', ';
-        out2 += ', ';
-      }
-      item.name = item.name.strip_html();
-      out += '[url=http://www.audible.com/search?advsearchKeywords=' + item.name + ']' + item.name + '[/url]';
-      out2 += item.name;
-      meta_dict['read_by'].push(item.name);
-    });
-    out += '[/color]';
-    meta_dict['read_by_nfo'] = out2;
-    meta_dict['read_by_nfotemp'] = out;
-    out = 'Read By:   ' + out;
-    out2 = padding_right(' Read By:',' ', 25) + out2;
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-  } catch (e) {
-    meta_dict['read_by'] = [];
-    meta_dict['read_by_nfo'] = 'N/A';
-    meta_dict['read_by_nfotemp'] = 'N/A';
-  }
-
-
-
-
-  try {
-    var out = 'Date:   [color=white]';
-    out2 = padding_right(' Date:',' ', 25);
-    meta_dict['date'] = audible_json_data['datePublished'].strip_html();
-    out += meta_dict['date'];
-    out2 += meta_dict['date'];
-    out += '[/color]';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-  } catch (e) {
-    meta_dict['date'] = 'N/A';
-  }
-
-
-
-  // not exposed in json object, it's in search json
-  meta_dict['series'] = '';
-  if ('series' in audible_json_data) {
-    meta_dict['series'] = audible_json_data['series'].strip_html();
-  } else {
     try {
+      breadcrumb_json_data = JSON.parse( document.querySelectorAll('script[type="application/ld+json"]')[1].innerText )[1].itemListElement;
+      tmp = [];
+      for (var i = 1; i < breadcrumb_json_data.length; i++) { // starting on 1 to remove home
+        tmp.push(breadcrumb_json_data[i]['item']['name']);
+      }
+      meta_dict['genre'] = tmp.join();    
+    } catch (e) { }
+
+
+    item = 'name';
+    if (item in audible_json_data) { 
+      meta_dict['title'] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'datePublished';
+    if (item in audible_json_data) { 
+      meta_dict['date'] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'image';
+    if (item in audible_json_data) { 
+      meta_dict['cover'] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'inLanguage';
+    if (item in audible_json_data) { 
+      meta_dict['language'] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'publisher';
+    if (item in audible_json_data) { 
+      meta_dict[item] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'description';
+    if (item in audible_json_data) { 
+      meta_dict[item] = audible_json_data[item].strip_html();
+    }
+
+
+    item = 'duration';
+    if (item in audible_json_data) { 
+      meta_dict[item] = audible_json_data[item]
+        .replace(/pt/i,'')
+        .replace(/h/i,'hr ')
+        .replace(/m/i,'min')
+        .strip_html();
+    }
+
+
+    item = 'author';
+    if (item in audible_json_data) { 
+      tmp= [];
+      for (var i = 0; i < audible_json_data[item].length; i++) {
+        tmp.push(audible_json_data[item][i]['name'].strip_html());
+      }
+      meta_dict[item] = tmp.join(', ');
+    }
+
+
+    item = 'readBy';
+    if (item in audible_json_data) { 
+      tmp= [];
+      for (var i = 0; i < audible_json_data[item].length; i++) {
+        tmp.push(audible_json_data[item][i]['name'].strip_html());
+      }
+      meta_dict['read_by'] = tmp.join(', ');
+    }
+
+
+    item = 'series';
+    if (item in audible_json_data) {
+      // not exposed in json object, it's in search json, but adding anyway
+      meta_dict[item] = audible_json_data[item].strip_html();
+    } else {
       var meta_data = document.body.innerText;
-      meta_dict['series'] = /Series:(.*)/.exec(meta_data)[1];
-    } catch (e) {}
-
-    if ( meta_dict['series'] == '' ) {
       try {
-          var meta_data = document.body.innerText;
-          meta_dict['series'] = /Serie:(.*)/.exec(meta_data)[1];
+        meta_dict[item] = /Series:(.*)/.exec(meta_data)[1].strip_html();
       } catch (e) {}
+
+      if ( meta_dict[item] == '' ) {
+        try {
+            meta_dict[item] = /Serie:(.*)/.exec(meta_data)[1].strip_html();
+        } catch (e) {}
+      }
+
+
     }
 
+    meta_dict['instance_hash'] = 'abook.link - ' + generate_search_string(18);
   }
 
-
-  if ( meta_dict['series'] != '' ) {
-    var out = 'Series:   [color=white]';
-    out2 = padding_right(' Series:',' ', 25);
-    meta_dict['series'] = meta_dict['series'].strip_html();
-    out += meta_dict['series'];
-    out2 += meta_dict['series'];
-    out += '[/color]';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-  } else {
-    meta_dict['series'] = 'N/A';
-  }
-
-
-
-  try {
-    var out = 'Duration:   [color=white]';
-    out2 = padding_right(' Duration:',' ', 25);
-    meta_dict['duration'] = audible_json_data['duration'].replace(/pt/i,'').replace(/h/i,'hr ').replace(/m/i,'min').strip_html();
-    out += meta_dict['duration'];
-    out2 += meta_dict['duration'];
-    out += '[/color]';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-  } catch (e) {
-    meta_dict['duration'] = 'N/A';
-  }
-
-
-  try {
-    var out = 'Publisher:   [color=white]';
-    out2 = padding_right(' Publisher:',' ', 25);
-    meta_dict['publisher'] = audible_json_data['publisher'].strip_html();
-    out += meta_dict['publisher'];
-    out2 += meta_dict['publisher'];
-    out += '[/color]';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-    iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-  } catch (e) {
-    meta_dict['publisher'] = 'N/A';
-  }
-
-
-  try {
-    var out = '';
-    out +=  audible_json_data['description'].strip_html();
-    meta_dict['description'] = out;
-    iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  } catch (e) {
-    meta_dict['description'] = 'N/A';
-  }
-
-
-
-} else {
-
-
-if ( window.location.href.indexOf(".co.uk") == -1 && window.location.href.indexOf(".com.au") == -1 && window.location.href.indexOf(".de") == -1) {
-console.log('US Version');
-document.querySelector('.productPublisherSummary').parentElement.appendChild(iDiv);
-
-var meta_dict = {};
-
-try {
-  var out = 'Title:   [color=white]';
-  out2 = padding_right(' Title:',' ', 25);
-  meta_dict['title'] = (document.querySelectorAll(".bc-list-item h1")[0].innerText.trim());
-  out += meta_dict['title'];
-  out2 += meta_dict['title'];
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-} catch (e) {
-  meta_dict['title'] = 'N/A';
+  return meta_dict;
 }
 
 
-var out = '[color=white]', out2 = '';
-var cnt = 0;
-meta_dict['author'] = [];
-document.querySelectorAll('.authorLabel a').forEach(p => {
-  cnt += 1;
-  if (cnt > 1) {
-    out += ', ';
-    out2 += ', ';
-  }
-  out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]';
-  out2 += p.text;
-  meta_dict['author'].push(p.text);
-});
-out += '[/color]';
-meta_dict['author_nfo'] = out2;
-meta_dict['author_nfotemp'] = out;
-out = 'Author:   ' + out;
-out2 = padding_right(' Author:',' ', 25) + out2;
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
-
-
-
-
-var out = '[color=white]', out2 = '';
-var cnt = 0;
-meta_dict['read_by'] = [];
-document.querySelectorAll('.narratorLabel a').forEach(p => {
-  cnt += 1;
-  if (cnt > 1) {
-    out += ', ';
-    out2 += ', ';
-  }
-  out += '[url=http://www.audible.com/search?advsearchKeywords=' + p.text + ']' + p.text + '[/url]';
-  out2 += p.text;
-  meta_dict['read_by'].push(p.text);
-});
-out += '[/color]';
-meta_dict['read_by_nfo'] = out2;
-meta_dict['read_by_nfotemp'] = out;
-out = 'Read By:   ' + out;
-out2 = padding_right(' Read By:',' ', 25) + out2;
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-
-var out = 'Date:   [color=white]';
-out2 = padding_right(' Date:',' ', 25);
-meta_dict['date'] = (document.querySelector('.releaseDateLabel').innerHTML.replace("Release date:","").trim());
-out += meta_dict['date'];
-out2 += meta_dict['date'];
-out += '[/color]';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-try {
-  var out = 'Series:   [color=white]';
-  out2 = padding_right(' Series:',' ', 25);
-  meta_dict['series'] = (document.querySelector('.seriesLabel').innerText.replace("Series:","").trim());
-  out += meta_dict['series'];
-  out2 += meta_dict['series'];
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-} catch (e) {
-  meta_dict['series'] = 'N/A';
-}
-
-try {
-  var out = 'Duration:   [color=white]';
-  out2 = padding_right(' Duration:',' ', 25);
-  meta_dict['duration'] = (document.querySelector('.runtimeLabel').innerText.replace("Length:","").trim());
-  out += meta_dict['duration'];
-  out2 += meta_dict['duration'];
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>'; 
-} catch (e) {
-  meta_dict['duration'] = 'N/A';
-}
-
-
-
-var out = 'Publisher:   [color=white]';
-out2 = padding_right(' Publisher:',' ', 25);
-meta_dict['publisher'] = document.querySelector('.publisherLabel a').innerText.trim();
-out += meta_dict['publisher'];
-out2 += meta_dict['publisher'];
-out += '[/color]';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-var out = '';
-out +=  document.querySelector('.productPublisherSummary').innerText.replace("Publisher's Summary", "").trim();
-meta_dict['description'] = out;
-iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-
-
-} else {
-
-if (window.location.href.indexOf(".de") > -1) {
-
-  console.log('DE Version');
-
-  document.querySelector('#publisher-summary').parentElement.appendChild(iDiv);
-
-  var meta_data = document.querySelector('.adbl-prod-data-column').innerText;
-  var meta_data_split = meta_data.split('\n');
-
-  var meta_dict = {};
-
-
-  var out = 'Title:   [color=white]';
-  out2 = padding_right(' Title:',' ', 25);
-  var item_data = meta_data_split[0].trim();
-  out += item_data;
-  out2 += item_data;
-  meta_dict['title'] = item_data;
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><extarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /Autor:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['author'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['author'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['author_nfo'] = out2;
-  meta_dict['author_nfotemp'] = out;
-  out = 'Author:   ' + out;
-  out2 = padding_right(' Author:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /Gesprochen von:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['read_by'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['read_by'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['read_by_nfo'] = out2;
-  meta_dict['read_by_nfotemp'] = out;
-  out = 'Read By:   ' + out;
-  out2 = padding_right(' Read By:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  var out = 'Date:   [color=white]';
-  out2 = padding_right(' Date:',' ', 25);
-  var item_data = /Veröffentlicht:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['date'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-try {
-  var out = 'Series:   [color=white]';
-  out2 = padding_right(' Series:',' ', 25);
-  var item_data = /Serie:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['series'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['series'] = 'N/A';
-}
-
-
-try {
-  var out = 'Duration:   [color=white]';
-  out2 = padding_right(' Duration:',' ', 25);
-  var item_data = /Spieldauer:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['duration'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['duration'] = 'N/A';
-}
-
-  var out = 'Publisher:   [color=white]';
-  out2 = padding_right(' Publisher:',' ', 25);
-  var item_data = /Anbieter:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['publisher'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  var out = '';
-  out +=  document.querySelector('#publisher-summary').innerText.replace("Publisher's Summary", "").trim();
-  iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  meta_dict['description'] = out;
-
-
-} else {
-
-if (window.location.href.indexOf(".co.uk") > -1) {
-  console.log('UK Version');
-  document.querySelector('.productPublisherSummary').parentElement.appendChild(iDiv);
-
-  var meta_data = document.querySelector('.publisherLabel').parentElement.innerText;
-  var meta_data_split = meta_data.split('\n');
-
-  var meta_dict = {};
-
-
-  var out = 'Title:   [color=white]';
-  out2 = padding_right(' Title:',' ', 25);
-  var item_data = meta_data_split[0].trim();
-  out += item_data;
-  out2 += item_data;
-  meta_dict['title'] = item_data;
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><extarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /By:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['author'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['author'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['author_nfo'] = out2;
-  meta_dict['author_nfotemp'] = out;
-  out = 'Author:   ' + out;
-  out2 = padding_right(' Author:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
-
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /Narrated by:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['read_by'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.co.uk/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['read_by'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['read_by_nfo'] = out2;
-  meta_dict['read_by_nfotemp'] = out;
-  out = 'Read By:   ' + out;
-  out2 = padding_right(' Read By:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  var out = 'Date:   [color=white]';
-  out2 = padding_right(' Date:',' ', 25);
-  var item_data = /Release date:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['date'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-try {
-  var out = 'Series:   [color=white]';
-  out2 = padding_right(' Series:',' ', 25);
-  var item_data = /Series:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['series'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['series'] = 'N/A';
-}
-
-
-
-try {
-  var out = 'Duration:   [color=white]';
-  out2 = padding_right(' Duration:',' ', 25);
-  var item_data = /Length:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['duration'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['duration'] = 'N/A';
-}
-
-
-  var out = 'Publisher:   [color=white]';
-  out2 = padding_right(' Publisher:',' ', 25);
-  var item_data = /Publisher:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['publisher'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  var out = '';
-  out +=  document.querySelector('.productPublisherSummary').innerText.replace("Publisher's summary", "").trim();
-  iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  meta_dict['description'] = out;
-
-}
-
-
-
-if (window.location.href.indexOf(".com.au") > -1) {
-
-
-  console.log('AU Version');
-  document.querySelector('.productPublisherSummary').parentElement.appendChild(iDiv);
-
-  var meta_data = document.querySelector('.publisherLabel').parentElement.innerText;
-  var meta_data_split = meta_data.split('\n');
-
-  var meta_dict = {};
-
-
-  var out = 'Title:   [color=white]';
-  out2 = padding_right(' Title:',' ', 25);
-  var item_data = meta_data_split[0].trim();
-  out += item_data;
-  out2 += item_data;
-  meta_dict['title'] = item_data;
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><extarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /By:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['author'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.com.au/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['author'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['author_nfo'] = out2;
-  meta_dict['author_nfotemp'] = out;
-  out = 'Author:   ' + out;
-  out2 = padding_right(' Author:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  iDiv.innerHTML = '<hr/><br/><a id="goodreadslink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + meta_dict['title'] .replace('&', ' ') + ' - ' + meta_dict['author_nfo'] + '">Good Reads</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="fantasticfictionlink" style="font-size: 30px; color: red; font-weight: bold; display: inline-block; border: 2px solid blue; padding: 10px;" target="_blank" href="https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + meta_dict['title'].replace('&', ' ') + ' ' + meta_dict['author'] + '">Fantastic Fiction</a><br/><br/><hr/><br/>' + iDiv.innerHTML;
-
-
-  var out = '[color=white]';
-  out2 = '';
-  var item_data = /Narrated by:(.*)/.exec(meta_data)[1].split(',')
-  var cnt = 0;
-  meta_dict['read_by'] = [];
-  item_data.forEach(p => {
-    cnt += 1;
-    if (cnt > 1) {
-      out += ', ';
-      out2 += ', ';
-    }
-    p = p.trim();
-    out += '[url=http://www.audible.com.au/search?advsearchKeywords=' + p + ']' + p + '[/url]';
-    out2 += p;
-    meta_dict['read_by'].push(p);
-  });
-  out += '[/color]';
-  meta_dict['read_by_nfo'] = out2;
-  meta_dict['read_by_nfotemp'] = out;
-  out = 'Read By:   ' + out;
-  out2 = padding_right(' Read By:',' ', 25) + out2;
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-
-  var out = 'Date:   [color=white]';
-  out2 = padding_right(' Date:',' ', 25);
-  var item_data = /Release date:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['date'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-try {
-  var out = 'Series:   [color=white]';
-  out2 = padding_right(' Series:',' ', 25);
-  var item_data = /Series:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['series'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['series'] = 'N/A';
-}
-
-
-try {
-  var out = 'Duration:   [color=white]';
-  out2 = padding_right(' Duration:',' ', 25);
-  var item_data = /Length:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['duration'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-} catch (e) {
-  meta_dict['duration'] = 'N/A';
-}
-
-
-
-  var out = 'Publisher:   [color=white]';
-  out2 = padding_right(' Publisher:',' ', 25);
-  var item_data = /Publisher:(.*)/.exec(meta_data)[1]
-  out += item_data.trim();
-  out2 += item_data.trim();
-  meta_dict['publisher'] = item_data.trim();
-  out += '[/color]';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  iDiv.innerHTML += '<hr/><br/><textarea onclick="copy_clipboard(this)">' + out2 + '\n</textarea>';
-
-
-  var out = '';
-  out +=  document.querySelector('.productPublisherSummary').innerText.replace("Publisher's summary", "").trim();
-  iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + out + '\n</textarea>';
-  meta_dict['description'] = out;
-
-
-
-}
-
-}
-}
-}
-
-
-meta_dict['instance_hash'] = generate_search_string(18);
-
-nfo_post_template = `
-[hide thanked=1][code]    DON'T POST THIS PART
-
-Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with \\t)
-{meta:author_plain}\\t{meta:title_filtered}\\t{meta:series_formatted}\\t{meta:date_orig}\\tabook.link - {meta:instance_hash}\\t{meta:rar_passwd}
-
-Subject:
-{meta:author_plain} - {meta:title_filtered} ({meta:date_orig}) {meta:series_formatted}
-
-Password:
-{meta:rar_passwd}
-
-Search String:
-abook.link - {meta:instance_hash}
-
-POST BELOW THIS LINE [/code][/hide]
-
-[table]
-[tr]
-[td][img width=350]{meta:imgur_url}[/img][/td]
-[td]      [/td]
-[td][b]General Information[/b]
-===================
-[size=9pt]Title:   [color=white]{meta:title}[/color]
-Author:   [color=white]{meta:author}[/color]
-Read By:   [color=white]{meta:read_by}[/color]
-Date:   [color=white]{meta:date}[/color]
-Publisher:   [color=white]{meta:publisher}[/color]
-Series:   [color=white]{meta:series}[/color]
-
-[b]File Information[/b]
-================
-File Type:   [color=white]MP3[/color]
-File Type:   [color=white]AAC/MP4[/color]
-Source Format:   [color=white]Audible[/color]
-Number of Chapters:   [color=white]{meta:chapters}[/color]
-Total Duration:   [color=white]{meta:duration_clean}[/color]
-Total Size:   [color=white]{meta:total_size}[/color]
-Encoded At:   [color=white]MP3: 64 kbps, 22.05 kHz, Stereo[/color][/size]
-Encoded At:   [color=white]Lossless Conversion
-                   AAC: 63 kbps, 22.05 kHz, Stereo[/color][/size]
-[/td]
-[/tr]
-[/table]
-
-[b]Book Description[/b]
-================
-{meta:comment}
-
-
-[color=yellow]Posted by proxy[/color]
-[color=yellow]Posted by proxy for[/color] [url=https://abook.link/book/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
-
-
-[hide thanked=1]Search: [code]abook.link - {meta:instance_hash}[/code]
-Password: [code]{meta:rar_passwd}[/code][/hide]
-
-[size=8pt][i]Note: These are not my rips. Many thanks to the original uploader(s).[/i][/size]
-`;
+window['create_nfo'] = function (meta_dict) {
 
 nfo_template = `
                   ▄▄▄▄▄▄▄▄▄
@@ -899,7 +255,10 @@ nfo_template += padding_right(' Author:',' ', 25) + '{meta:author}\n'
 nfo_template += padding_right(' Read By:',' ', 25) + '{meta:read_by}\n'
 nfo_template += padding_right(' Date:',' ', 25) + '{meta:date}\n'
 nfo_template += padding_right(' Publisher:',' ', 25) + '{meta:publisher}\n'
-nfo_template += padding_right(' Series:',' ', 25) + '{meta:series}\n'
+nfo_template += padding_right(' Genre:',' ', 25) + '{meta:genre}\n'
+if (meta_dict['series'] != '') {
+  nfo_template += padding_right(' Series:',' ', 25) + '{meta:series}\n'
+}
 nfo_template += `
 File Information
 ================
@@ -916,59 +275,449 @@ nfo_template += padding_right(' Encoded At:',' ', 25) + 'Lossless Conversion AAC
 nfo_template += `
 Book Description
 ================
-{meta:comment}
+{meta:description}
 `;
 
 
 
-
-// nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
-nfo_post_template = nfo_post_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
-nfo_post_template = nfo_post_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
-nfo_post_template = nfo_post_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
-nfo_post_template = nfo_post_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
-nfo_post_template = nfo_post_template.replace(/{meta:rar_passwd}/g, 'abook_4-&all');
-nfo_post_template = nfo_post_template.replace(/{meta:title}/g,  meta_dict['title']);
-nfo_post_template = nfo_post_template.replace(/{meta:author}/g,  meta_dict['author_nfotemp']);
-nfo_post_template = nfo_post_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfotemp']);
-nfo_post_template = nfo_post_template.replace(/{meta:date}/g,  meta_dict['date']);
-nfo_post_template = nfo_post_template.replace(/{meta:publisher}/g,  meta_dict['publisher']);
-nfo_post_template = nfo_post_template.replace(/{meta:series}/g,  meta_dict['series']);
-// nfo_post_template = nfo_post_template.replace(/{meta:chapters}/g,  meta_dict['']);
-nfo_post_template = nfo_post_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
-// nfo_post_template = nfo_post_template.replace(/{meta:total_size}/g,  meta_dict['']);
-nfo_post_template = nfo_post_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_post_template = nfo_post_template.replace(/{meta:comment}/g, meta_dict['description']);
-
-iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px;" onclick="copy_clipboard(this)">' + nfo_post_template + '\n</textarea>';
-
-
-// nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['title']);
-nfo_template = nfo_template.replace(/{meta:title_filtered}/g,  meta_dict['title']);
-nfo_template = nfo_template.replace(/{meta:author_plain}/g,  meta_dict['author_nfo']);
-nfo_template = nfo_template.replace(/{meta:date_orig}/g,  meta_dict['date']);
-nfo_template = nfo_template.replace(/{meta:series_formatted}/g,  meta_dict['series']);
-nfo_template = nfo_template.replace(/{meta:rar_passwd}/g, 'abook_4-&all');
 nfo_template = nfo_template.replace(/{meta:title}/g,  meta_dict['title']);
-nfo_template = nfo_template.replace(/{meta:author}/g,  meta_dict['author_nfo']);
-nfo_template = nfo_template.replace(/{meta:read_by}/g,  meta_dict['read_by_nfo']);
+nfo_template = nfo_template.replace(/{meta:author}/g,  meta_dict['author']);
+nfo_template = nfo_template.replace(/{meta:read_by}/g,  meta_dict['read_by']);
 nfo_template = nfo_template.replace(/{meta:date}/g,  meta_dict['date']);
 nfo_template = nfo_template.replace(/{meta:publisher}/g,  meta_dict['publisher']);
 nfo_template = nfo_template.replace(/{meta:series}/g,  meta_dict['series']);
+nfo_template = nfo_template.replace(/{meta:genre}/g,  meta_dict['genre']);
 // nfo_template = nfo_template.replace(/{meta:chapters}/g,  meta_dict['']);
 nfo_template = nfo_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
 // nfo_template = nfo_template.replace(/{meta:total_size}/g,  meta_dict['']);
-nfo_template = nfo_template.replace(/{meta:instance_hash}/g, meta_dict['instance_hash']);
-nfo_template = nfo_template.replace(/{meta:comment}/g, meta_dict['description'].wordWrap(65, "\n", 1));
+nfo_template = nfo_template.replace(/{meta:description}/g, meta_dict['description'].wordWrap(65, "\n", 1));
 
-iDiv.innerHTML += '<hr/><br/><textarea style="height: 300px; font-family: \'Courier New\'; font-size: 1.0em; line-height: 1.3em;" onclick="copy_clipboard(this)">' + nfo_template + '\n</textarea>';
+return nfo_template;
+
+}
+
+window['create_post_template'] = function (meta_dict) {
+
+
+nfo_post_template = `
+[hide thanked=1][code]    DON'T POST THIS PART
+
+Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with \\t)
+{meta:author_plain}\\t{meta:title}\\t{meta:series}\\t{meta:date}\\t{meta:instance_hash}\\t{meta:archive_pass}
+
+Subject:
+{meta:author_plain} - {meta:title} ({meta:date_year}) {meta:series}
+
+Search String:
+{meta:instance_hash}
+
+Password:
+{meta:archive_pass}
+
+
+POST BELOW THIS LINE [/code][/hide]
+
+[table]
+[tr]
+[td][img width=350]{meta:imgur_url}[/img][/td]
+[td]      [/td]
+[td][b]General Information[/b]
+===================
+[size=9pt]Title:   [color=white]{meta:title}[/color]
+Author:   [color=white]{meta:author}[/color]
+Read By:   [color=white]{meta:read_by}[/color]
+Date:   [color=white]{meta:date}[/color]
+Publisher:   [color=white]{meta:publisher}[/color]
+Genre:   [color=white]{meta:genre}[/color]`;
+
+if (meta_dict['series'] != '') {
+  nfo_post_template += `
+Series:   [color=white]{meta:series}[/color]
+`;
+}
+
+nfo_post_template += `
+[b]File Information[/b]
+================
+File Type:   [color=white]MP3[/color]
+File Type:   [color=white]AAC/MP4[/color]
+Source Format:   [color=white]Audible[/color]
+Number of Chapters:   [color=white]{meta:chapters}[/color]
+Total Duration:   [color=white]{meta:duration_clean}[/color]
+Total Size:   [color=white]{meta:total_size}[/color]
+Encoded At:   [color=white]MP3: 64 kbps, 22.05 kHz, Stereo[/color][/size]
+Encoded At:   [color=white]Lossless Conversion
+                   AAC: 63 kbps, 22.05 kHz, Stereo[/color][/size]
+[/td]
+[/tr]
+[/table]
+
+[b]Book Description[/b]
+================
+{meta:description}
+
+
+[color=yellow]Posted by proxy[/color]
+[color=yellow]Posted by proxy for[/color] [url=https://abook.link/book/index.php?action=profile;u=][color=red]{meta:proxy_name}[/color][/url]
+
+
+[hide thanked=1]Search: [code]{meta:instance_hash}[/code]
+Password: [code]{meta:archive_pass}[/code][/hide]
+
+[size=8pt][i]Note: These are not my rips. Many thanks to the original uploader(s).[/i][/size]
+`;
+
+var authors = audible_meta['author'].split(', ');
+var authors_linked = [];
+for (var i = 0; i < authors.length; i++) {
+  authors_linked.push('[url=http://www.audible.com/search?advsearchKeywords=' + authors[i] + ']' + authors[i] + '[/url]')
+}
+authors_linked = authors_linked.join(', ');
+
+var read_bys = audible_meta['read_by'].split(', ');
+var read_bys_linked = [];
+for (var i = 0; i < read_bys.length; i++) {
+  read_bys_linked.push('[url=http://www.audible.com/search?advsearchKeywords=' + read_bys[i] + ']' + read_bys[i] + '[/url]')
+}
+read_bys_linked = read_bys_linked.join(', ');
+
+
+nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['cover'].replace('media-amazon','   PLEASE UPLOAD TO IMGUR  '));
+nfo_post_template = nfo_post_template.replace(/{meta:title}/g,  meta_dict['title']);
+nfo_post_template = nfo_post_template.replace(/{meta:author}/g,  authors_linked);
+nfo_post_template = nfo_post_template.replace(/{meta:author_plain}/g,  meta_dict['author']);
+nfo_post_template = nfo_post_template.replace(/{meta:read_by}/g,  read_bys_linked);
+nfo_post_template = nfo_post_template.replace(/{meta:date}/g,  meta_dict['date']);
+nfo_post_template = nfo_post_template.replace(/{meta:date_year}/g,  meta_dict['date'].substring(0,4));
+nfo_post_template = nfo_post_template.replace(/{meta:publisher}/g,  meta_dict['publisher']);
+nfo_post_template = nfo_post_template.replace(/{meta:series}/g,  meta_dict['series']);
+nfo_post_template = nfo_post_template.replace(/{meta:genre}/g,  meta_dict['genre']);
+// nfo_post_template = nfo_post_template.replace(/{meta:chapters}/g,  meta_dict['']);
+nfo_post_template = nfo_post_template.replace(/{meta:duration_clean}/g,  meta_dict['duration']);
+nfo_post_template = nfo_post_template.replace(/{meta:instance_hash}/g,  meta_dict['instance_hash']);
+nfo_post_template = nfo_post_template.replace(/{meta:archive_pass}/g,  meta_dict['archive_pass']);
+// nfo_post_template = nfo_post_template.replace(/{meta:total_size}/g,  meta_dict['']);
+nfo_post_template = nfo_post_template.replace(/{meta:description}/g, meta_dict['description']);
+
+
+return nfo_post_template;
+}
+
+window['create_audible_meta_ui'] = function () {
 
 
 
-document.getElementById('json_meta').value = '--AMETA-BEGIN--' + JSON.stringify(meta_dict) + '--AMETA-END--'
+var iDiv = document.createElement('div');
+iDiv.id = 'audible_meta_data_container';
+iDiv.className = 'audible_meta_data_containter';
+iDiv.innerHTML = `<style>
+
+  #audible_meta_data {
+    border: 1px solid black;
+    width: 750px;
+    /*height: 300px;*/
+    background-color: lightgrey;
+    color: black;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .audible_meta_data .layout_title {
+    /*font-weight: bold;*/
+    width: 100%;
+    padding: 10px;
+    background-color: black;
+    color: white;
+      font-size: 18px;
+    text-align: center;
+  }
+  .audible_meta_data label {
+    display: inline-block;
+    width: 120px;
+    text-align: right;
+    font-weight: bold;
+    padding-right: 10px;
+    vertical-align: top;
+  }
+  .audible_meta_data input[type=text] {
+    width: 600px;
+  }
+
+  .audible_meta_data textarea {
+    left: 100px;
+    width: 600px;
+    height: 300px;
+    vertical-align: top;
+    overflow: scroll;
+      white-space: normal;
+  }
 
 
-setTimeout(function(){ 
-  // document.getElementById("a_meta_top").scrollIntoView(); 
-  document.getElementById("goodreadslink").scrollIntoView(); 
-}, 1000);
+  .audible_meta_data textarea.meta_big {
+    height: 500px;
+  }
+
+  .audible_meta_data ul.menu {
+    font-weight: bold;
+      list-style: none;
+      padding: 0;
+      margin-top: 5px;
+      text-align: center;
+      border-bottom: 1px dashed;
+  }
+
+  .audible_meta_data ul.menu li {
+      display: inline;
+      border: 1px solid;
+      border-bottom: 0;
+      margin: 0 15px 0 0;
+      padding: 0px 10px;
+  }
+
+  .audible_meta_data ul.menu li.selected {
+      padding-bottom: 1px; 
+      background: darkgrey;
+  }
+
+  #meta_nfo {
+    font-family: 'Courier New'; 
+    font-size: 0.9em; 
+    line-height: 1.2em;
+    white-space: nowrap;
+  }
+
+  #meta_template {
+    white-space: nowrap;
+  }
+
+  .copy_button {
+    text-align: right;
+    font-style: italic;
+    padding-right: 35px;
+    font-weight: bold;
+  }
+
+  #view_searches a {
+    font-size: 20px;
+    border: 1px solid black;
+    background-color: #c1c5c5;
+    font-weight: bold;
+    margin: 10px;
+    display: inline-block;
+    padding: 10px;
+    text-decoration: none;
+    min-width: 300px;
+    text-align: center;
+    margin-left: 214px;
+    color: red;
+  }
+
+  #view_searches a:hover {
+    background-color: #bde6e6;
+  }
+</style>
+
+<div id="audible_meta_data" class="audible_meta_data">
+<div class="layout_title" >Audible Meta Data</div>
+
+<ul class="menu">
+  <li class="selected">Edit</li>
+  <li>Meta</li>
+  <li>Nfo</li>
+  <li>Template</li>
+  <li>Searches</li>
+</ul>
+
+
+<div id="view_edit">
+<p><label for="meta_cover">Cover Img: </label><input type='text' id="meta_cover" placeholder='cover ...'></p>
+
+<p><label for="meta_genre">Genre: </label><input type='text' id="meta_genre" placeholder='genre ...'></p>
+
+<p><label for="meta_title">Title: </label><input type='text' id="meta_title" placeholder='title ...'></p>
+
+<p><label for="meta_series">Series: </label><input type='text' id="meta_series" placeholder='series ...'></p>
+
+<p><label for="meta_author">Author: </label><input type='text' id="meta_author" placeholder='author (comma separated) ...'></p>
+
+<p><label for="meta_readby">Read by: </label><input type='text' id="meta_readby" placeholder='read by (comma separated) ...'></p>
+
+<p><label for="meta_date">Date: </label><input type='text' id="meta_date" placeholder='date yyyy-mm-dd...'></p>
+
+<p><label for="meta_duration">Duration: </label><input type='text' id="meta_duration" placeholder='duration ...'></p>
+
+<p><label for="meta_publisher">Publisher: </label><input type='text' id="meta_publisher" placeholder='publisher ...'></p>
+
+<p><label for="meta_language">Language: </label><input type='text' id="meta_language" placeholder='language ...'></p>
+
+<p><label for="meta_search_string">Search String: </label><input type='text' id="meta_search_string" placeholder='search string ...'></p>
+
+<p><label for="meta_archive_pass">Archive Pass: </label><input type='text' id="meta_archive_pass" placeholder='archive pass ...'></p>
+
+<p><label for="meta_description">Description: </label><textarea  id="meta_description" placeholder='description ...'></textarea></p>
+
+</div>
+
+
+
+
+<div id="view_meta">
+<div class="copy_button" id="copy_meta_json">Copy to clipboard</div>
+<p><label for="meta_json">Meta string: </label><textarea  id="meta_json" class="meta_big" placeholder='meta string ...'></textarea></p>
+</div>
+
+
+
+
+<div id="view_nfo">
+<div class="copy_button" id="copy_meta_nfo">Copy to clipboard</div>
+<p><label for="meta_nfo">Nfo: </label><textarea id="meta_nfo" class="meta_big" placeholder='nfo ...'></textarea></p>
+</div>
+
+
+
+
+
+<div id="view_template">
+<div class="copy_button" id="copy_meta_template">Copy to clipboard</div>
+<p><label for="meta_template">Post Template: </label><textarea  id="meta_template" class="meta_big" placeholder='post template ...'></textarea></p>
+</div>
+
+
+<div id="view_searches">
+  <br/>
+  <a href="" target="_blank" id="link_goodreads">Goodreads</a><br/>
+  <a href="" target="_blank" id="link_fantastic_fiction">Fantastic Fiction</a><br/>
+  <a href="" target="_blank" id="link_nzbindex">NZBIndex</a><br/>
+  <a href="" target="_blank" id="link_binsearch">Binsearch</a><br/>
+  <a href="" target="_blank" id="link_nzbking">NZBKing</a><br/>
+  <br/><br/>
+</div>
+
+
+
+
+
+</div>
+`;
+
+document.body.insertBefore(iDiv, document.body.firstChild);
+
+document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
+  ele.addEventListener('click', () => {
+    document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele2) => {
+      ele2.classList.remove('selected');
+    });
+    ele.classList.add('selected');
+    console.log(ele);
+    clicked = ele.textContent.toLocaleLowerCase();
+
+    document.getElementById('view_edit').style.display = 'none';
+    document.getElementById('view_meta').style.display = 'none';
+    document.getElementById('view_nfo').style.display = 'none';
+    document.getElementById('view_template').style.display = 'none';
+    document.getElementById('view_searches').style.display = 'none';
+
+
+
+    if (clicked == 'edit') { 
+      document.getElementById('view_edit').style.display = 'block';
+    } else {
+      window['audible_meta']['cover'] = document.getElementById('meta_cover').value.trim();
+      window['audible_meta']['genre'] = document.getElementById('meta_genre').value.trim();
+      window['audible_meta']['title'] = document.getElementById('meta_title').value.trim();
+      window['audible_meta']['series'] = document.getElementById('meta_series').value.trim();
+      window['audible_meta']['author'] = document.getElementById('meta_author').value.trim();
+      window['audible_meta']['read_by'] = document.getElementById('meta_readby').value.trim();
+      window['audible_meta']['date'] = document.getElementById('meta_date').value.trim();
+      window['audible_meta']['duration'] = document.getElementById('meta_duration').value.trim();
+      window['audible_meta']['publisher'] = document.getElementById('meta_publisher').value.trim();
+      window['audible_meta']['language'] = document.getElementById('meta_language').value.trim();
+      window['audible_meta']['language'] = document.getElementById('meta_language').value.trim();
+      window['audible_meta']['description'] = document.getElementById('meta_description').value.trim();
+      window['audible_meta']['instance_hash'] = document.getElementById('meta_search_string').value.trim();
+      window['audible_meta']['archive_pass'] = document.getElementById('meta_archive_pass').value.trim();
+      setCookie('archive_pass',window['audible_meta']['archive_pass'], 365);
+
+    }
+    if (clicked == 'meta') { 
+
+      document.getElementById('meta_json').value = '--AMETA-BEGIN--' + JSON.stringify(window['audible_meta']) + '--AMETA-END--'
+
+      document.getElementById('view_meta').style.display = 'block';
+    }
+    if (clicked == 'nfo') { 
+      document.getElementById('meta_nfo').value = create_nfo(window['audible_meta']);
+      document.getElementById('view_nfo').style.display = 'block';
+    }
+    if (clicked == 'template') { 
+      document.getElementById('meta_template').value = create_post_template(window['audible_meta']);
+      document.getElementById('view_template').style.display = 'block';
+    }
+    if (clicked == 'searches') { 
+
+
+      var book_query = window['audible_meta']['title'].replace('&', ' ') + ' ' + window['audible_meta']['author'].replace(', ', ' ');
+
+      document.getElementById('link_goodreads').href = 'https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + book_query;
+
+      document.getElementById('link_fantastic_fiction').href = 'https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + book_query;
+      
+
+      document.getElementById('link_nzbindex').href = 'https://nzbindex.com/search/?q=' + window['audible_meta']['instance_hash'];
+      document.getElementById('link_binsearch').href = 'https://www.binsearch.info/?max=250&adv_age=&server=2&q=' + window['audible_meta']['instance_hash'];
+      document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=fsfsf' + window['audible_meta']['instance_hash'];
+      document.getElementById('view_searches').style.display = 'block';
+    }
+
+  });
+});
+
+
+document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele2) => {
+  ele2.classList.remove('selected');
+});
+document.querySelectorAll(".audible_meta_data ul.menu li")[0].classList.add('selected');
+
+document.getElementById('view_edit').style.display = 'block';
+document.getElementById('view_meta').style.display = 'none';
+document.getElementById('view_nfo').style.display = 'none';
+document.getElementById('view_template').style.display = 'none';
+document.getElementById('view_searches').style.display = 'none';
+
+}
+
+
+
+window['audible_meta'] = get_audible_data();
+
+create_audible_meta_ui();
+
+document.getElementById('meta_cover').value = window['audible_meta']['cover'];
+document.getElementById('meta_genre').value = window['audible_meta']['genre'];
+document.getElementById('meta_title').value = window['audible_meta']['title'];
+document.getElementById('meta_series').value = window['audible_meta']['series'];
+document.getElementById('meta_author').value = window['audible_meta']['author'];
+document.getElementById('meta_readby').value = window['audible_meta']['read_by'];
+document.getElementById('meta_date').value = window['audible_meta']['date'];
+document.getElementById('meta_duration').value = window['audible_meta']['duration'];
+document.getElementById('meta_publisher').value = window['audible_meta']['publisher'];
+document.getElementById('meta_language').value = window['audible_meta']['language'];
+document.getElementById('meta_search_string').value = window['audible_meta']['instance_hash'];
+document.getElementById('meta_archive_pass').value = window['audible_meta']['archive_pass'];
+document.getElementById('meta_language').value = window['audible_meta']['language'];
+document.getElementById('meta_description').value = window['audible_meta']['description'];
+
+
+document.getElementById('copy_meta_json').addEventListener('click', () => { 
+  copy_clipboard(document.getElementById('meta_json'));
+});
+
+document.getElementById('copy_meta_nfo').addEventListener('click', () => { 
+  copy_clipboard(document.getElementById('meta_nfo'));
+});
+
+document.getElementById('copy_meta_template').addEventListener('click', () => { 
+  copy_clipboard(document.getElementById('meta_template'));
+});
+
