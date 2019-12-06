@@ -667,7 +667,7 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
 
       document.getElementById('link_nzbindex').href = 'https://nzbindex.com/search/?q=' + window['audible_meta']['instance_hash'];
       document.getElementById('link_binsearch').href = 'https://www.binsearch.info/?max=250&adv_age=&server=2&q=' + window['audible_meta']['instance_hash'];
-      document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=fsfsf' + window['audible_meta']['instance_hash'];
+      document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=' + window['audible_meta']['instance_hash'];
       document.getElementById('view_searches').style.display = 'block';
     }
 
