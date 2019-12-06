@@ -472,6 +472,7 @@ iDiv.innerHTML = `<style>
       border-bottom: 0;
       margin: 0 15px 0 0;
       padding: 0px 10px;
+      cursor: cell;
   }
 
   .audible_meta_data ul.menu li.selected {
