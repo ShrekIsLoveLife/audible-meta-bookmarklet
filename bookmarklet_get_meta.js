@@ -483,11 +483,11 @@ iDiv.innerHTML = `<style>
     font-family: 'Courier New'; 
     font-size: 0.9em; 
     line-height: 1.2em;
-    white-space: nowrap;
+    white-space: pre-wrap;
   }
 
   #meta_template {
-    white-space: nowrap;
+    white-space: pre-wrap;
   }
 
   .copy_button {
