@@ -306,7 +306,7 @@ Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with
 {meta:author_plain}\\t{meta:title}\\t{meta:series}\\t{meta:date}\\t{meta:instance_hash}\\t{meta:archive_pass}
 
 Subject:
-{meta:author_plain} - {meta:title} ({meta:date_year}) {meta:series}
+{meta:language_upper}{meta:author_plain} - {meta:title} ({meta:date_year}) {meta:series}
 
 Search String:
 {meta:instance_hash}
@@ -383,6 +383,9 @@ read_bys_linked = read_bys_linked.join(', ');
 
 
 nfo_post_template = nfo_post_template.replace(/{meta:imgur_url}/g,  meta_dict['cover'].replace('media-amazon','   PLEASE UPLOAD TO IMGUR  '));
+language_upper = meta_dict['language'].replace('english','').toUpperCase();
+if (language_upper != '') { language_upper += ' '; }
+nfo_post_template = nfo_post_template.replace(/{meta:language_upper}/g,  language_upper);
 nfo_post_template = nfo_post_template.replace(/{meta:title}/g,  meta_dict['title']);
 nfo_post_template = nfo_post_template.replace(/{meta:author}/g,  authors_linked);
 nfo_post_template = nfo_post_template.replace(/{meta:author_plain}/g,  meta_dict['author']);
@@ -457,6 +460,14 @@ iDiv.innerHTML = `<style>
     height: 500px;
   }
 
+  #meta_additional_search {
+  	height: 100px;
+  }
+
+  #meta_additional_search.meta_big {
+    height: 500px;
+  }
+
   .audible_meta_data ul.menu {
     font-weight: bold;
       list-style: none;
@@ -516,6 +527,28 @@ iDiv.innerHTML = `<style>
   #view_searches a:hover {
     background-color: #bde6e6;
   }
+
+  #apply_searches {
+    font-size: 14px;
+    border: 1px solid black;
+    background-color: #e8ecec;
+    font-weight: bold;
+    margin: 0px;
+    display: inline-block;
+    padding: 3px;
+    text-decoration: none;
+    min-width: 200px;
+    text-align: center;
+    margin-left: 519px;
+    color: red;
+  }
+
+  #apply_searches:hover {
+    background-color: #bde6e6;
+  }
+
+
+
 </style>
 
 <div id="audible_meta_data" class="audible_meta_data">
@@ -587,12 +620,43 @@ iDiv.innerHTML = `<style>
 
 <div id="view_searches">
   <br/>
-  <a href="" target="_blank" id="link_goodreads">Goodreads</a><br/>
-  <a href="" target="_blank" id="link_fantastic_fiction">Fantastic Fiction</a><br/>
-  <a href="" target="_blank" id="link_nzbindex">NZBIndex</a><br/>
-  <a href="" target="_blank" id="link_binsearch">Binsearch</a><br/>
-  <a href="" target="_blank" id="link_nzbking">NZBKing</a><br/>
+  <div id="custom_searches">
+  </div>
   <br/><br/>
+
+<p><label for="meta_additional_search"><span id="custom_searches_label">Edit Searches: </span></label><textarea id="meta_additional_search" placeholder='
+JSON object of search links you want.
+
+Example:
+{
+	"RB Digital": "https://rbdigital.com/search/eaudio?all={meta:title} {meta:author}", 
+	"Scribd": "https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query= {meta:author}"
+}
+
+To use a " in your URLs use %22, don't escape them with backslash.
+
+You can use any variable in the URL
+{meta:cover}
+{meta:genre}
+{meta:title}
+{meta:series}
+{meta:author}
+{meta:read_by}
+{meta:date}
+{meta:duration}
+{meta:publisher}
+{meta:language}
+{meta:language}
+{meta:description}
+{meta:instance_hash}
+{meta:archive_pass}
+ '></textarea>
+
+<div id="apply_searches">Apply Custom Search</div>
+
+</p>
+  <br/>
+
 </div>
 
 
@@ -658,21 +722,25 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
     }
     if (clicked == 'searches') { 
 
+      // var book_query = window['audible_meta']['title'].replace('&', ' ') + ' ' + window['audible_meta']['author'].replace(', ', ' ');
 
-      var book_query = window['audible_meta']['title'].replace('&', ' ') + ' ' + window['audible_meta']['author'].replace(', ', ' ');
+      // document.getElementById('link_goodreads').href = 'https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + book_query;
 
-      document.getElementById('link_goodreads').href = 'https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q=' + book_query;
+      // document.getElementById('link_fantastic_fiction').href = 'https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + book_query;
 
-      document.getElementById('link_fantastic_fiction').href = 'https://www.fantasticfiction.com/search/?searchfor=book&keywords=' + book_query;
-      
-// https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query=
-// https://rbdigital.com/search/eaudio?all=Augur%2Bof%2BDespair%2BPart%2B2%2BChris%2BDows&author=Chris%2BDows&page-index=0&page-size=60&search-source=advanced-search&title=Augur%2Bof%2BDespair%2BPart%2B2%2B
-// http://audiobookbay.nl/?s=augur+of+despair+part+2+chris+dows
-// https://abook.link/book/tools/search_abook.php?search=Augur+of+Despair+Part+2+Chris+Dows
-// save to file
-      document.getElementById('link_nzbindex').href = 'https://nzbindex.com/search/?q=' + window['audible_meta']['instance_hash'];
-      document.getElementById('link_binsearch').href = 'https://www.binsearch.info/?max=250&adv_age=&server=2&q=' + window['audible_meta']['instance_hash'];
-      document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=' + window['audible_meta']['instance_hash'];
+      // document.getElementById('link_nzbindex').href = 'https://nzbindex.com/search/?q=' + window['audible_meta']['instance_hash'];
+      // document.getElementById('link_binsearch').href = 'https://www.binsearch.info/?max=250&adv_age=&server=2&q=' + window['audible_meta']['instance_hash'];
+      // document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q="' + window['audible_meta']['instance_hash'] + '"';
+
+
+	  var tmp = getCookie('custom_searches');
+	  if ( tmp ) {
+	    document.getElementById('meta_additional_search').value = tmp;
+	  } else {
+	  	document.getElementById('meta_additional_search').value = '';
+	  }
+	  apply_searches();
+
       document.getElementById('view_searches').style.display = 'block';
     }
 
@@ -727,10 +795,73 @@ function run_bookmarklet() {
     copy_clipboard(document.getElementById('meta_template'));
   });
 
+
+  document.getElementById('custom_searches_label').addEventListener('click', () => { 
+    if ( document.getElementById('meta_additional_search').classList.contains('meta_big') ) {
+    	document.getElementById('meta_additional_search').classList.remove('meta_big');
+    } else {
+    	document.getElementById('meta_additional_search').classList.add('meta_big');
+    }
+  });
+
+
+  document.getElementById('apply_searches').addEventListener('click', () => { 
+  	if (apply_searches() == false) {
+  		alert('Error applying search, maybe you have an invalid json format');
+  	}
+  });
+
+	document.getElementById('audible_meta_data_container').scrollIntoView();
 }
+
+window['apply_searches'] = function () {
+	var meta_additional_search = document.getElementById('meta_additional_search').value;
+	if ( meta_additional_search.trim() == '' ) {
+		meta_additional_search = `
+{
+	"Goodreads": "https://www.goodreads.com/search?utf8=%E2%9C%93&search_type=books&q={meta:title} {meta:author}", 
+	"Fantastic Fiction": "https://www.fantasticfiction.com/search/?searchfor=book&keywords={meta:title} {meta:author}", 
+	"NZBIndex": "https://nzbindex.com/search/?q={meta:instance_hash}", 
+	"Binsearch": "https://www.binsearch.info/?max=250&adv_age=&server=2&q={meta:instance_hash}", 
+	"NZBKing": "https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=%22{meta:instance_hash}%22", 
+	"RB Digital": "https://rbdigital.com/search/eaudio?all={meta:title} {meta:author}", 
+	"Scribd": "https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query= {meta:author}"
+}
+		`;
+		document.getElementById('meta_additional_search').value = meta_additional_search;
+	}
+
+	try {
+		search_obj = JSON.parse( meta_additional_search );
+		search_str = '';
+		for (var key in search_obj) {
+			var search_url = search_obj[key];
+			search_url = search_url.replace(/{meta:cover}/gi, window['audible_meta']['cover']);
+			search_url = search_url.replace(/{meta:genre}/gi, window['audible_meta']['genre'].replace(', ', ' '));
+			search_url = search_url.replace(/{meta:title}/gi, window['audible_meta']['title'].replace('&', ' '));
+			search_url = search_url.replace(/{meta:series}/gi, window['audible_meta']['series'].replace('&', ' '));
+			search_url = search_url.replace(/{meta:author}/gi, window['audible_meta']['author'].replace(', ', ' '));
+			search_url = search_url.replace(/{meta:read_by}/gi, window['audible_meta']['read_by'].replace(', ', ' '));
+			search_url = search_url.replace(/{meta:date}/gi, window['audible_meta']['date']);
+			search_url = search_url.replace(/{meta:duration}/gi, window['audible_meta']['duration']);
+			search_url = search_url.replace(/{meta:publisher}/gi, window['audible_meta']['publisher']);
+			search_url = search_url.replace(/{meta:language}/gi, window['audible_meta']['language']);
+			search_url = search_url.replace(/{meta:description}/gi, window['audible_meta']['description']);
+			search_url = search_url.replace(/{meta:instance_hash}/gi, window['audible_meta']['instance_hash']);
+			search_url = search_url.replace(/{meta:archive_pass}/gi, window['audible_meta']['archive_pass']);
+			search_str += '<a href="'+ search_url +'" target="_blank">' + key + '</a><br/>';
+		}
+		document.getElementById('custom_searches').innerHTML = search_str;
+        setCookie('custom_searches',meta_additional_search, 365);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
 
 
 if (document.getElementById('audible_meta_data_container')) {
+  document.getElementById('audible_meta_data_container').scrollIntoView();
   alert('Bookmarkelt is already loaded');
 } else {
   if ( window.location.href.search(/audible\./gi) > 0 ) {
