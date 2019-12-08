@@ -825,7 +825,8 @@ window['apply_searches'] = function () {
 	"Binsearch": "https://www.binsearch.info/?max=250&adv_age=&server=2&q={meta:instance_hash}", 
 	"NZBKing": "https://www.nzbking.com/search/?ft=&gr=&po=&so=&q=%22{meta:instance_hash}%22", 
 	"RB Digital": "https://rbdigital.com/search/eaudio?all={meta:title} {meta:author}", 
-	"Scribd": "https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query= {meta:author}"
+	"Scribd": "https://www.scribd.com/search?content_type=audiobooks&page=1&language=1&query={meta:title} {meta:author}",
+	"Abook": "https://abook.link/book/tools/search_abook.php?search={meta:title} {meta:author}"
 }
 		`;
 		document.getElementById('meta_additional_search').value = meta_additional_search;
