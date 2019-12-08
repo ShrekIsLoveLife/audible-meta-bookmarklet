@@ -502,11 +502,14 @@ iDiv.innerHTML = `<style>
     white-space: pre-wrap;
   }
 
-  .copy_button {
+  .copy_save_buttons {
     text-align: right;
     font-style: italic;
     padding-right: 35px;
     font-weight: bold;
+  }
+  .copy_save_buttons span:hover {
+  	color: #494dd0;
   }
 
   #view_searches a {
@@ -596,7 +599,7 @@ iDiv.innerHTML = `<style>
 
 
 <div id="view_meta">
-<div class="copy_button" id="copy_meta_json">Copy to clipboard</div>
+<div class="copy_save_buttons"><span id="copy_meta_json">Copy to clipboard</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="save_meta_json">Save File</span></div>
 <p><label for="meta_json">Meta string: </label><textarea  id="meta_json" class="meta_big" placeholder='meta string ...'></textarea></p>
 </div>
 
@@ -604,7 +607,7 @@ iDiv.innerHTML = `<style>
 
 
 <div id="view_nfo">
-<div class="copy_button" id="copy_meta_nfo">Copy to clipboard</div>
+<div class="copy_save_buttons"><span id="copy_meta_nfo">Copy to clipboard</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="save_meta_nfo">Save File</span></div>
 <p><label for="meta_nfo">Nfo: </label><textarea id="meta_nfo" class="meta_big" placeholder='nfo ...'></textarea></p>
 </div>
 
@@ -613,7 +616,7 @@ iDiv.innerHTML = `<style>
 
 
 <div id="view_template">
-<div class="copy_button" id="copy_meta_template">Copy to clipboard</div>
+<div class="copy_save_buttons"><span id="copy_meta_template">Copy to clipboard</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="save_meta_template">Save File</span></div>
 <p><label for="meta_template">Post Template: </label><textarea  id="meta_template" class="meta_big" placeholder='post template ...'></textarea></p>
 </div>
 
@@ -795,6 +798,24 @@ function run_bookmarklet() {
     copy_clipboard(document.getElementById('meta_template'));
   });
 
+  document.getElementById('save_meta_json').addEventListener('click', () => { 
+    var filename = window['audible_meta']['author'] + ' - ' + window['audible_meta']['series'] +
+	     ' (' + window['audible_meta']['date'] + ') ' + window['audible_meta']['title'] + '.adata.txt';
+    save_file(filename, document.getElementById('meta_json').value);
+  });
+
+  document.getElementById('save_meta_nfo').addEventListener('click', () => { 
+    var filename = window['audible_meta']['author'] + ' - ' + window['audible_meta']['series'] +
+	     ' (' + window['audible_meta']['date'] + ') ' + window['audible_meta']['title'] + '.nfo';
+    save_file(filename, document.getElementById('meta_nfo').value);
+  });
+
+  document.getElementById('save_meta_template').addEventListener('click', () => { 
+    var filename = window['audible_meta']['author'] + ' - ' + window['audible_meta']['series'] +
+	     ' (' + window['audible_meta']['date'] + ') ' + window['audible_meta']['title'] + '.template.txt';
+    save_file(filename, document.getElementById('meta_template').value);
+  });
+
 
   document.getElementById('custom_searches_label').addEventListener('click', () => { 
     if ( document.getElementById('meta_additional_search').classList.contains('meta_big') ) {
@@ -812,6 +833,17 @@ function run_bookmarklet() {
   });
 
 	document.getElementById('audible_meta_data_container').scrollIntoView();
+}
+
+window['save_file'] = function (filename, data) {
+    const a = document.createElement("a");
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.href = window.URL.createObjectURL(new Blob([data], { type: "unknown/unknown" }));
+    a.setAttribute("download", filename);
+    a.click();
+    window.URL.revokeObjectURL(a.href);
+    document.body.removeChild(a);
 }
 
 window['apply_searches'] = function () {
