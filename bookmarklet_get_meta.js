@@ -66,20 +66,20 @@ function setCookie(name,value,days) {
         date.setTime(date.getTime() + (days*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    document.cookie = encodeURIComponent(name) + "=" + (encodeURIComponent(value) || "")  + expires + "; path=/";
 }
 function getCookie(name) {
-    var nameEQ = name + "=";
+    var nameEQ = encodeURIComponent(name) + "=";
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
         var c = ca[i];
         while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        if (c.indexOf(nameEQ) == 0) return decodeURIComponent(c.substring(nameEQ.length,c.length));
     }
     return null;
 }
 function eraseCookie(name) {   
-    document.cookie = name+'=; Max-Age=-99999999;';  
+    document.cookie = encodeURIComponent(name)+'=; Max-Age=-99999999;';  
 }
 
 
@@ -103,7 +103,7 @@ window['get_audible_data'] = function () {
   };
 
 
-  var tmp = getCookie('archive_pass');
+  var tmp = getCookie('get_meta-archive_pass');
   if ( tmp ) {
     meta_dict['archive_pass'] = tmp;
   }
@@ -705,7 +705,7 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
       window['audible_meta']['description'] = document.getElementById('meta_description').value.trim();
       window['audible_meta']['instance_hash'] = document.getElementById('meta_search_string').value.trim();
       window['audible_meta']['archive_pass'] = document.getElementById('meta_archive_pass').value.trim();
-      setCookie('archive_pass',window['audible_meta']['archive_pass'], 365);
+      setCookie('get_meta-archive_pass',window['audible_meta']['archive_pass'], 365);
 
     }
     if (clicked == 'meta') { 
@@ -736,7 +736,7 @@ document.querySelectorAll(".audible_meta_data ul.menu li").forEach((ele) => {
       // document.getElementById('link_nzbking').href = 'https://www.nzbking.com/search/?ft=&gr=&po=&so=&q="' + window['audible_meta']['instance_hash'] + '"';
 
 
-	  var tmp = getCookie('custom_searches');
+	  var tmp = getCookie('get_meta-custom_searches');
 	  if ( tmp ) {
 	    document.getElementById('meta_additional_search').value = tmp;
 	  } else {
@@ -885,7 +885,7 @@ window['apply_searches'] = function () {
 			search_str += '<a href="'+ search_url +'" target="_blank">' + key + '</a><br/>';
 		}
 		document.getElementById('custom_searches').innerHTML = search_str;
-        setCookie('custom_searches',meta_additional_search, 365);
+        setCookie('get_meta-custom_searches',meta_additional_search, 365);
 		return true;
 	} catch (e) {
 		return false;
