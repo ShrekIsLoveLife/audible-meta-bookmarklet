@@ -13,7 +13,8 @@ window['copy_clipboard'] = function copy_clipboard(obj) {
   iDiv3.style.textAlign = 'center';
   iDiv3.style.display = 'inline-block';
   iDiv3.style.position = 'absolute';
-  iDiv3.style.width = '600px';
+  // iDiv3.style.width = '600px';
+  iDiv3.style.width = obj.offsetWidth + 'px';
   iDiv3.innerHTML = 'text copied to clipboard';
   obj.parentNode.insertBefore(iDiv3, obj);
   setTimeout(function() {
@@ -306,7 +307,7 @@ Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with
 {meta:author_plain}\\t{meta:title}\\t{meta:series}\\t{meta:date}\\t{meta:instance_hash}\\t{meta:archive_pass}
 
 Subject:
-{meta:language_upper}{meta:author_plain} - {meta:title} ({meta:date_year}) {meta:series}
+{meta:language_upper}{meta:author_plain} - {meta:series} - {meta:title} ({meta:date_year})
 
 Search String:
 {meta:instance_hash}
@@ -332,11 +333,11 @@ Genre:   [color=white]{meta:genre}[/color]`;
 
 if (meta_dict['series'] != '') {
   nfo_post_template += `
-Series:   [color=white]{meta:series}[/color]
-`;
+Series:   [color=white]{meta:series}[/color]`;
 }
 
 nfo_post_template += `
+
 [b]File Information[/b]
 ================
 File Type:   [color=white]MP3[/color]
