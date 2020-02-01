@@ -306,8 +306,15 @@ nfo_post_template = `
 Tabbed: (due to clipboard bug or std, tabs don't copy so just replace \\\\t with \\t)
 {meta:author_plain}\\t{meta:title}\\t{meta:series}\\t{meta:date}\\t{meta:instance_hash}\\t{meta:archive_pass}
 
-Subject:
-{meta:language_upper}{meta:author_plain} - {meta:series} - {meta:title} ({meta:date_year})
+`;
+
+if (meta_dict['series'] != '') {
+  nfo_post_template += `Subject: {meta:language_upper}{meta:author_plain} - {meta:series} - {meta:title} ({meta:date_year})`;
+} else {
+  nfo_post_template += `Subject: {meta:language_upper}{meta:author_plain} - {meta:title} ({meta:date_year})`;
+}
+
+nfo_post_template += `
 
 Search String:
 {meta:instance_hash}
